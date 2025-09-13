@@ -1,8 +1,18 @@
 <script>
   import { selectedFacility } from '$lib/stores/facilities.js';
+  import { base } from '$app/paths';
   
   let selectedImageIndex = 0;
   let showLightbox = false;
+
+  // Prefix {base} for project-relative URLs so GH Pages works
+  function asset(url) {                               // NEW
+    if (!url) return '';
+    if (/^(https?:|data:|blob:)/i.test(url)) return url; // leave absolute/external as-is
+    if (url.startsWith(base + '/')) return url;
+    if (url.startsWith('/')) return `${base}${url}`;
+    return `${base}/${url}`;
+  }
   
   function openLightbox(index) {
     selectedImageIndex = index;
@@ -49,7 +59,7 @@
       {#each $selectedFacility.images as image, index}
         <div class="relative group cursor-pointer overflow-hidden rounded-lg bg-gray-100">
           <img
-            src={image.url}
+            src={asset(image.url)} 
             alt={image.alt}
             class="w-full h-80 object-cover transition-transform duration-300 group-hover:scale-105"
             on:click={() => openLightbox(index)}
@@ -159,7 +169,7 @@
         
         <!-- Image -->
         <img
-          src={$selectedFacility.images[selectedImageIndex].url}
+          src={asset($selectedFacility.images[selectedImageIndex].url)}
           alt={$selectedFacility.images[selectedImageIndex].alt}
           class="max-w-full max-h-full object-contain"
           on:click|stopPropagation

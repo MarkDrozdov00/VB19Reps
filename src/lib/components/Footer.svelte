@@ -1,3 +1,7 @@
+<script>
+  import { base } from '$app/paths';
+</script>
+
 <footer class="bg-white border-t border-gray-100 mt-auto">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -18,9 +22,24 @@
       <div class="col-span-1">
         <h3 class="text-sm font-semibold text-vb19-text uppercase tracking-wider mb-4">Quick Links</h3>
         <ul class="space-y-2">
-          <li><a href="/" class="text-vb19-muted hover:text-vb19-primary text-sm transition-colors duration-200">Book Facilities</a></li>
-          <!-- <li><a href="/announcements" class="text-vb19-muted hover:text-vb19-primary text-sm transition-colors duration-200">Announcements</a></li>
-          <li><a href="/about" class="text-vb19-muted hover:text-vb19-primary text-sm transition-colors duration-200">About Us</a></li> -->
+          <li>
+            <a href={`${base}/`} class="text-vb19-muted hover:text-vb19-primary text-sm transition-colors duration-200">
+              Book Facilities
+            </a>
+          </li>
+
+          {#if false}
+            <li>
+              <a href={`${base}/announcements`} class="text-vb19-muted hover:text-vb19-primary text-sm transition-colors duration-200">
+                Announcements
+              </a>
+            </li>
+            <li>
+              <a href={`${base}/about`} class="text-vb19-muted hover:text-vb19-primary text-sm transition-colors duration-200">
+                About Us
+              </a>
+            </li>
+          {/if}
         </ul>
       </div>
       
@@ -52,4 +71,3 @@
     </div>
   </div>
 </footer>
-

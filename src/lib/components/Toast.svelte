@@ -26,8 +26,12 @@
   });
   
   function dismiss() {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
     visible = false;
-    dispatch('dismiss');
+    dispatch('close');
   }
   
   function getTypeStyles(type) {
