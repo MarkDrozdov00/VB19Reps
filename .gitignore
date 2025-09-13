@@ -1,0 +1,8 @@
+/venv/
+src/lib/components/admin/
+src/routes/admin/
+src/routes/about/
+src/routes/announcements/
+/node_modules/
+/.svelte-kit/
+.DS_Store
