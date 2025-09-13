@@ -6,7 +6,8 @@
     "isEntry": true,
     "imports": [
       "_internal.js",
-      "_environment.js"
+      "_environment.js",
+      "_paths.js"
     ]
   },
   "_environment.js": {
@@ -16,13 +17,6 @@
   "_exports.js": {
     "file": "chunks/exports.js",
     "name": "exports"
-  },
-  "_facilities.js": {
-    "file": "chunks/facilities.js",
-    "name": "facilities",
-    "imports": [
-      "_index.js"
-    ]
   },
   "_false.js": {
     "file": "chunks/false.js",
@@ -47,8 +41,13 @@
     "name": "internal",
     "imports": [
       "_index2.js",
-      "_environment.js"
+      "_environment.js",
+      "_paths.js"
     ]
+  },
+  "_paths.js": {
+    "file": "chunks/paths.js",
+    "name": "paths"
   },
   "_shared.js": {
     "file": "chunks/shared.js",
@@ -64,16 +63,6 @@
       "_index2.js"
     ]
   },
-  "_stores.js": {
-    "file": "chunks/stores.js",
-    "name": "stores",
-    "imports": [
-      "_index2.js",
-      "_exports.js",
-      "_utils.js",
-      "_state.svelte.js"
-    ]
-  },
   "_utils.js": {
     "file": "chunks/utils.js",
     "name": "utils"
@@ -86,6 +75,7 @@
     "imports": [
       "_shared.js",
       "_false.js",
+      "_paths.js",
       "_environment.js"
     ]
   },
@@ -109,7 +99,7 @@
     "isEntry": true,
     "imports": [
       "_false.js",
-      "_environment.js",
+      "_paths.js",
       "_exports.js",
       "_utils.js",
       "_index.js",
@@ -124,10 +114,13 @@
     "isEntry": true,
     "imports": [
       "_index2.js",
-      "_stores.js"
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js",
+      "_paths.js"
     ],
     "css": [
-      "_app/immutable/assets/_layout.Ce_WpeoW.css"
+      "_app/immutable/assets/_layout.BSKAe2M5.css"
     ]
   },
   "src/routes/+page.svelte": {
@@ -137,75 +130,8 @@
     "isEntry": true,
     "imports": [
       "_index2.js",
-      "_facilities.js"
-    ]
-  },
-  "src/routes/about/+page.svelte": {
-    "file": "entries/pages/about/_page.svelte.js",
-    "name": "entries/pages/about/_page.svelte",
-    "src": "src/routes/about/+page.svelte",
-    "isEntry": true,
-    "imports": [
-      "_index2.js"
-    ]
-  },
-  "src/routes/admin/+layout.svelte": {
-    "file": "entries/pages/admin/_layout.svelte.js",
-    "name": "entries/pages/admin/_layout.svelte",
-    "src": "src/routes/admin/+layout.svelte",
-    "isEntry": true,
-    "imports": [
-      "_index2.js",
-      "_stores.js"
-    ]
-  },
-  "src/routes/admin/+page.svelte": {
-    "file": "entries/pages/admin/_page.svelte.js",
-    "name": "entries/pages/admin/_page.svelte",
-    "src": "src/routes/admin/+page.svelte",
-    "isEntry": true,
-    "imports": [
-      "_index2.js",
-      "_facilities.js"
-    ]
-  },
-  "src/routes/admin/blackouts/+page.svelte": {
-    "file": "entries/pages/admin/blackouts/_page.svelte.js",
-    "name": "entries/pages/admin/blackouts/_page.svelte",
-    "src": "src/routes/admin/blackouts/+page.svelte",
-    "isEntry": true,
-    "imports": [
-      "_index2.js",
-      "_facilities.js"
-    ]
-  },
-  "src/routes/admin/calendar/+page.svelte": {
-    "file": "entries/pages/admin/calendar/_page.svelte.js",
-    "name": "entries/pages/admin/calendar/_page.svelte",
-    "src": "src/routes/admin/calendar/+page.svelte",
-    "isEntry": true,
-    "imports": [
-      "_index2.js",
-      "_facilities.js"
-    ]
-  },
-  "src/routes/admin/reservations/+page.svelte": {
-    "file": "entries/pages/admin/reservations/_page.svelte.js",
-    "name": "entries/pages/admin/reservations/_page.svelte",
-    "src": "src/routes/admin/reservations/+page.svelte",
-    "isEntry": true,
-    "imports": [
-      "_index2.js",
-      "_facilities.js"
-    ]
-  },
-  "src/routes/announcements/+page.svelte": {
-    "file": "entries/pages/announcements/_page.svelte.js",
-    "name": "entries/pages/announcements/_page.svelte",
-    "src": "src/routes/announcements/+page.svelte",
-    "isEntry": true,
-    "imports": [
-      "_index2.js"
+      "_index.js",
+      "_paths.js"
     ]
   }
 }

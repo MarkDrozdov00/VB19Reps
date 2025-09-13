@@ -2,7 +2,7 @@ import { B as BROWSER } from "./chunks/false.js";
 import { json, text, error } from "@sveltejs/kit";
 import { HttpError, SvelteKitError, Redirect, ActionFailure } from "@sveltejs/kit/internal";
 import { with_request_store, merge_tracing } from "@sveltejs/kit/internal/server";
-import { a as assets, b as base, c as app_dir, o as override, r as reset } from "./chunks/environment.js";
+import { a as assets, b as base, c as app_dir, o as override, r as reset } from "./chunks/paths.js";
 import * as devalue from "devalue";
 import { m as make_trackable, d as disable_search, a as decode_params, v as validate_layout_server_exports, b as validate_layout_exports, c as validate_page_server_exports, e as validate_page_exports, n as normalize_path, r as resolve, f as decode_pathname, g as validate_server_exports } from "./chunks/exports.js";
 import { b as base64_encode, t as text_decoder, a as text_encoder, g as get_relative_path } from "./chunks/utils.js";
@@ -3269,7 +3269,7 @@ async function internal_respond(request, options2, manifest, state) {
     fetch: null,
     getClientAddress: state.getClientAddress || (() => {
       throw new Error(
-        `${"@sveltejs/adapter-auto"} does not specify getClientAddress. Please raise an issue`
+        `${"@sveltejs/adapter-static"} does not specify getClientAddress. Please raise an issue`
       );
     }),
     locals: {},

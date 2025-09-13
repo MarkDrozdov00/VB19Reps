@@ -27,20 +27,14 @@ export {};
 
 declare module "$app/types" {
 	export interface AppTypes {
-		RouteId(): "/" | "/about" | "/admin" | "/admin/blackouts" | "/admin/calendar" | "/admin/reservations" | "/announcements";
+		RouteId(): "/";
 		RouteParams(): {
 			
 		};
 		LayoutParams(): {
-			"/": Record<string, never>;
-			"/about": Record<string, never>;
-			"/admin": Record<string, never>;
-			"/admin/blackouts": Record<string, never>;
-			"/admin/calendar": Record<string, never>;
-			"/admin/reservations": Record<string, never>;
-			"/announcements": Record<string, never>
+			"/": Record<string, never>
 		};
-		Pathname(): "/" | "/about" | "/about/" | "/admin" | "/admin/" | "/admin/blackouts" | "/admin/blackouts/" | "/admin/calendar" | "/admin/calendar/" | "/admin/reservations" | "/admin/reservations/" | "/announcements" | "/announcements/";
+		Pathname(): "/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
 		Asset(): "/banner.png" | "/bbq-area.jpg" | "/club-room.jpg" | "/games-room.jpg" | string & {};
 	}

@@ -1,4 +1,4 @@
-import "clsx";
+import { clsx as clsx$1 } from "clsx";
 import { B as BROWSER } from "./false.js";
 var is_array = Array.isArray;
 var index_of = Array.prototype.indexOf;
@@ -1614,9 +1614,19 @@ function attr(name, value, is_boolean = false) {
   const assignment = is_boolean ? "" : `="${escape_html(normalized, true)}"`;
   return ` ${name}${assignment}`;
 }
+function clsx(value) {
+  if (typeof value === "object") {
+    return clsx$1(value);
+  } else {
+    return value ?? "";
+  }
+}
 function to_class(value, hash, directives) {
   var classname = value == null ? "" : "" + value;
   return classname === "" ? null : classname;
+}
+function to_style(value, styles) {
+  return value == null ? null : String(value);
 }
 function subscribe_to_store(store, run, invalidate) {
   if (store == null) {
@@ -1768,6 +1778,10 @@ function attr_class(value, hash, directives) {
   var result = to_class(value);
   return result ? ` class="${escape_html(result, true)}"` : "";
 }
+function attr_style(value, directives) {
+  var result = to_style(value);
+  return result ? ` style="${escape_html(result, true)}"` : "";
+}
 function store_get(store_values, store_name, store) {
   if (store_name in store_values && store_values[store_name][0] === store) {
     return store_values[store_name][2];
@@ -1796,33 +1810,24 @@ function slot(payload, $$props, name, slot_props, fallback_fn) {
     slot_fn(payload, slot_props);
   }
 }
-function ensure_array_like(array_like_or_iterator) {
-  if (array_like_or_iterator) {
-    return array_like_or_iterator.length !== void 0 ? array_like_or_iterator : Array.from(array_like_or_iterator);
-  }
-  return [];
-}
-function maybe_selected(payload, value) {
-  return value === payload.select_value ? " selected" : "";
-}
 export {
   setContext as A,
   pop as B,
   COMMENT_NODE as C,
-  store_get as D,
-  attr_class as E,
-  stringify as F,
-  unsubscribe_stores as G,
+  getContext as D,
+  store_get as E,
+  attr as F,
+  attr_class as G,
   HYDRATION_ERROR as H,
-  slot as I,
-  getContext as J,
-  escape_html as K,
+  clsx as I,
+  unsubscribe_stores as J,
+  slot as K,
   LEGACY_PROPS as L,
-  head as M,
+  escape_html as M,
   noop as N,
-  attr as O,
-  ensure_array_like as P,
-  maybe_selected as Q,
+  stringify as O,
+  head as P,
+  attr_style as Q,
   safe_not_equal as R,
   set_active_effect as a,
   active_effect as b,
