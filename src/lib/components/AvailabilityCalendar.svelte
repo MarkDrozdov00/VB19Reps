@@ -18,6 +18,8 @@
   let selectedStartDate = null;
   let selectedEndDate = null;
 
+  $: totalNights = totalDays; // each selected day corresponds to one overnight
+
   // ---- reactive timestamps ----
   $: startTs = selectedStartDate ? atMidnight(selectedStartDate).getTime() : null;
   $: endTs   = selectedEndDate   ? atMidnight(selectedEndDate).getTime()   : null;
@@ -51,15 +53,18 @@
       ? Math.ceil((atMidnight(selectedEndDate) - atMidnight(selectedStartDate)) / (1000*60*60*24)) + 1
       : 1;
 
-  function generateCalendarDays(year, month) {
-    const firstDay = new Date(year, month, 1);
-    const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay()); // start Sunday
+      function generateCalendarDays(year, month) {
+        const firstDay = new Date(year, month, 1);
+        const startDate = new Date(firstDay);
 
-    const days = [];
-    for (let i = 0; i < 42; i++) {
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
+        // shift so Monday is day 0
+        const offset = (firstDay.getDay() + 6) % 7; // Mon=0 … Sun=6
+        startDate.setDate(startDate.getDate() - offset);
+
+        const days = [];
+        for (let i = 0; i < 42; i++) {
+          const date = new Date(startDate);
+          date.setDate(startDate.getDate() + i);
 
       const dateAtMidnight = atMidnight(date);
       const dateString = dateAtMidnight.toISOString().split('T')[0];
@@ -205,27 +210,43 @@
       </button>
     {/if}
   </div>
+  <!-- Booking policy note -->
+<div class="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-vb19-text">
+  <span class="font-medium">Heads up:</span>
+  Reservations run from <span class="font-semibold">18:00</span> on the selected day
+  until <span class="font-semibold">15:00</span> the following day (cleaning & key return).
+  Selecting 2 days means <span class="font-semibold">2 nights</span>.
+</div>
+
 
   <!-- Selected pill -->
   {#if selectedStartDate}
-    <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-      <div class="flex items-center justify-between">
-        <div>
-          <span class="text-sm font-medium text-vb19-text">Selected:</span>
-          {#if $selectedFacility?.maxDays > 1 && selectedEndDate && totalDays > 1}
-            <span class="text-sm text-vb19-primary ml-2">
-              {fmtDateEU(selectedStartDate)} – {fmtDateEU(selectedEndDate)}
-            </span>
-          {:else}
-            <span class="text-sm text-vb19-primary ml-2">{fmtDateEU(selectedStartDate)}</span>
-          {/if}
-        </div>
+  <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div>
+        <span class="text-sm font-medium text-vb19-text">Selected:</span>
         {#if $selectedFacility?.maxDays > 1 && selectedEndDate && totalDays > 1}
-          <span class="text-xs text-vb19-muted">{totalDays} {totalDays === 1 ? 'day' : 'days'}</span>
+          <span class="text-sm text-vb19-primary ml-2">
+            {fmtDateEU(selectedStartDate)} – {fmtDateEU(selectedEndDate)}
+          </span>
+        {:else}
+          <span class="text-sm text-vb19-primary ml-2">{fmtDateEU(selectedStartDate)}</span>
         {/if}
       </div>
+
+      <!-- nights + policy -->
+      <div class="text-xs text-vb19-muted">
+        {#if selectedEndDate}
+          {totalNights} {totalNights === 1 ? 'night' : 'nights'}
+        {:else}
+          1 night
+         {/if}
+         · Check-in after 18:00 · Check-out next day before 15:00 
+       </div>
+      </div>
     </div>
-  {/if}
+  {/if} 
+
 
   <!-- Nav -->
   <div class="flex items-center justify-between mb-4">
@@ -254,7 +275,7 @@
 
   <!-- Grid -->
   <div class="grid grid-cols-7 gap-1 mb-4">
-    {#each ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] as dayName}
+    {#each ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] as dayName}
       <div class="p-2 text-center text-sm font-medium text-vb19-muted">{dayName}</div>
     {/each}
 
