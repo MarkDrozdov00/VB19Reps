@@ -10,7 +10,7 @@ return {
 	assets: new Set(["banner.png","bbq-area.jpg","club-room.jpg","favicon.png","games-room.jpg"]),
 	mimeTypes: {".png":"image/png",".jpg":"image/jpeg"},
 	_: {
-		client: {start:"_app/immutable/entry/start.7J3bU434.js",app:"_app/immutable/entry/app.gizpDWwS.js",imports:["_app/immutable/entry/start.7J3bU434.js","_app/immutable/chunks/CLjUkMkI.js","_app/immutable/chunks/ys46v9TR.js","_app/immutable/chunks/bxbQZt25.js","_app/immutable/entry/app.gizpDWwS.js","_app/immutable/chunks/ys46v9TR.js","_app/immutable/chunks/CWj6FrbW.js","_app/immutable/chunks/DpIJLBU4.js","_app/immutable/chunks/BP8N04A3.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
+		client: {start:"_app/immutable/entry/start.BQqrXWKV.js",app:"_app/immutable/entry/app.BIyQ7m5K.js",imports:["_app/immutable/entry/start.BQqrXWKV.js","_app/immutable/chunks/BC_jkXGw.js","_app/immutable/chunks/ys46v9TR.js","_app/immutable/chunks/CJQO3vYM.js","_app/immutable/entry/app.BIyQ7m5K.js","_app/immutable/chunks/ys46v9TR.js","_app/immutable/chunks/CWj6FrbW.js","_app/immutable/chunks/DpIJLBU4.js","_app/immutable/chunks/BP8N04A3.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
 		nodes: [
 			__memo(() => import('./nodes/0.js')),
 			__memo(() => import('./nodes/1.js')),

@@ -1,5 +1,5 @@
 <script>
-  import { facilities, selectedFacility } from '$lib/stores/facilities.js';
+  import { facilities, selectedFacility } from '$lib/stores/facilities';
   import { createEventDispatcher } from 'svelte';
   
   const dispatch = createEventDispatcher();

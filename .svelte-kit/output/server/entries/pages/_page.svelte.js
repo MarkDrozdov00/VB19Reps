@@ -18,9 +18,7 @@ function withBase(url) {
     requiresApproval: true,
     depositEur: 200,
     termsNote: "A €200 deposit is required when picking up the key. Terms of Use contract must be signed at key pickup.",
-    images: [
-      { url: withBase("/club-room.jpg"), alt: "Club Room - Main Area" }
-    ]
+    images: [{ url: withBase("/club-room.jpg"), alt: "Club Room - Main Area" }]
   },
   {
     id: 2,
@@ -31,9 +29,7 @@ function withBase(url) {
     requiresApproval: true,
     depositEur: 200,
     termsNote: "A €200 deposit is required when picking up the key. Terms of Use contract must be signed at key pickup.",
-    images: [
-      { url: withBase("/games-room.jpg"), alt: "Games Room - Gaming Setup" }
-    ]
+    images: [{ url: withBase("/games-room.jpg"), alt: "Games Room - Gaming Setup" }]
   },
   {
     id: 3,
@@ -44,9 +40,7 @@ function withBase(url) {
     requiresApproval: false,
     depositEur: null,
     termsNote: null,
-    images: [
-      { url: withBase("/bbq-area.jpg"), alt: "BBQ Area - Grilling Space" }
-    ]
+    images: [{ url: withBase("/bbq-area.jpg"), alt: "BBQ Area - Grilling Space" }]
   }
 ];
 const selectedFacility = writable(null);

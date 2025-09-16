@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-  "build": "vite build",
-  "postbuild": "node -e \"require('fs').mkdirSync('docs',{recursive:true}); require('fs').writeFileSync('docs/.nojekyll','')\"",
-  "dev": "vite dev",
-  "preview": "vite preview",
-  "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
-  "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch"
+    "build": "vite build",
+    "postbuild": "node -e \"require('fs').mkdirSync('docs',{recursive:true}); require('fs').writeFileSync('docs/.nojekyll','')\"",
+    "dev": "vite dev",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^6.1.0",

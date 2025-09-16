@@ -1,5 +1,5 @@
 <script>
-  import { selectedFacility } from '$lib/stores/facilities.js';
+  import { selectedFacility } from '$lib/stores/facilities';
   import { base } from '$app/paths';
   
   let selectedImageIndex = 0;

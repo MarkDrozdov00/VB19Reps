@@ -1,14 +1,24 @@
-<script>
-  import { selectedFacility, availability, selectedDates } from '$lib/stores/facilities.js';
-  import { createEventDispatcher } from 'svelte';
+<script lang="ts">
+  // Use relative path to avoid alias hiccups for now
+  import { selectedFacility, availability, selectedDates } from '$lib/stores/facilities';
+  import { createEventDispatcher, onMount } from 'svelte';
+  import { getAvailability } from '$lib/api';
+
+  
 
   const dispatch = createEventDispatcher();
 
   // ---- helpers ----
-  function atMidnight(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
-  function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
-  function addMonths(d, n) { const x = new Date(d); x.setMonth(x.getMonth() + n); return x; }
-  const lower = (x) => String(x ?? '').toLowerCase();
+  function atMidnight(d: Date) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
+  function addDays(d: Date, n: number) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+  function addMonths(d: Date, n: number) { const x = new Date(d); x.setMonth(x.getMonth() + n); return x; }
+  const lower = (x: unknown) => String(x ?? '').toLowerCase();
+  const toISO = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  };
 
   // booking window: tomorrow .. +2 months (inclusive)
   const today = atMidnight(new Date());
@@ -16,8 +26,8 @@
   const maxSelectableDate = new Date(atMidnight(addMonths(today, 2)).getTime() + (24*60*60*1000 - 1));
 
   let currentDate = new Date();
-  let selectedStartDate = null;
-  let selectedEndDate = null;
+  let selectedStartDate: Date | null = null;
+  let selectedEndDate: Date | null = null;
 
   // ---- reactive timestamps ----
   $: startTs = selectedStartDate ? atMidnight(selectedStartDate).getTime() : null;
@@ -29,11 +39,11 @@
   $: monthName = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
   // base days for the grid
-  $: calendarDays = generateCalendarDays(currentYear, currentMonth);
+  $: calendarDays = generateCalendarDays(currentYear, currentMonth, $availability?.days ?? []);
 
   // DAYS WITH SELECTION FLAGS (reacts to startTs/endTs)
   $: viewDays = calendarDays.map(d => {
-    const ts = d.ts;
+    const ts = d.ts as number;
     const isSelected =
       startTs != null && (endTs != null ? (ts === startTs || ts === endTs) : ts === startTs);
     const isInRange =
@@ -41,45 +51,110 @@
     return { ...d, _selected: isSelected, _inRange: isInRange };
   });
 
-  // update store
+  // update store so booking form sees dates
   $: selectedDates.set({ start: selectedStartDate, end: selectedEndDate });
 
   // Show the overnight note only for the Clubroom (or if facility has overnight: true)
   $: isOvernightFacility = !!$selectedFacility && (
+    // explicit flag on the object, or fuzzy match on name/slug
+    // @ts-ignore
     $selectedFacility.overnight === true ||
     ['clubroom', 'club room', 'club-room'].some(k => {
+      // @ts-ignore
       const slugish = lower($selectedFacility.slug ?? $selectedFacility.key ?? $selectedFacility.id);
+      // @ts-ignore
       const name = lower($selectedFacility.displayName);
       return slugish.includes(k) || name.includes(k);
     })
   );
 
   // EU date for header pill
-  function fmtDateEU(d) { return d.toLocaleDateString('en-GB'); }
+  function fmtDateEU(d: Date) { return d.toLocaleDateString('en-GB'); }
 
   // totals
   $: totalDays =
     selectedStartDate && selectedEndDate
-      ? Math.ceil((atMidnight(selectedEndDate) - atMidnight(selectedStartDate)) / (1000*60*60*24)) + 1
+      ? Math.ceil((atMidnight(selectedEndDate).getTime() - atMidnight(selectedStartDate).getTime()) / (1000*60*60*24)) + 1
       : 1;
   $: totalNights = totalDays; // 1 selected day = 1 night (for Clubroom)
 
-  function generateCalendarDays(year, month) {
-    const firstDay = new Date(year, month, 1);
-    const startDate = new Date(firstDay);
+  // ----- availability fetch -----
+  let loading = false;
+  let availError: string | null = null;
 
-    // shift so Monday is day 0
-    const offset = (firstDay.getDay() + 6) % 7; // Mon=0 … Sun=6
-    startDate.setDate(startDate.getDate() - offset);
+  function firstGridDay(year: number, month: number) {
+    const first = new Date(year, month, 1);
+    const start = new Date(first);
+    // Monday-start grid: shift back so Monday is first cell
+    const offset = (first.getDay() + 6) % 7; // Mon=0 … Sun=6
+    start.setDate(1 - offset);
+    return atMidnight(start);
+  }
+  function lastGridDayExclusive(year: number, month: number) {
+    const start = firstGridDay(year, month);
+    const end = addDays(start, 42); // 6 weeks grid -> exclusive end
+    return atMidnight(end);
+  }
 
-    const days = [];
+  function toApiFacilityName(displayName?: string) {
+    const s = (displayName || '').toLowerCase();
+    if (s.includes('club')) return 'CLUB_ROOM' as const;
+    if (s.includes('game')) return 'GAMES_ROOM' as const;
+    if (s.includes('bbq'))  return 'BBQ_AREA'  as const;
+    // fallback if your store carries the enum already
+    // @ts-ignore
+    return $selectedFacility?.name ?? 'BBQ_AREA';
+  }
+
+  async function refreshAvailability() {
+    // @ts-ignore
+    if (!$selectedFacility) { availability.set({ days: [] }); return; }
+    loading = true;
+    availError = null;
+    try {
+      const fromDate = firstGridDay(currentYear, currentMonth);
+      const toDateEx = lastGridDayExclusive(currentYear, currentMonth);
+      const facilityName = $selectedFacility?.name ?? toApiFacilityName($selectedFacility?.displayName);
+
+      const days = await getAvailability(
+        facilityName,
+        toISO(fromDate),
+        toISO(toDateEx) // API expects exclusive 'to'
+      );
+
+      availability.set({ days }); // your getDayStatus reads $availability.days
+    } catch (e: any) {
+      availError = 'Failed to load availability.';
+      console.error('availability error:', e);
+      availability.set({ days: [] });
+    } finally {
+      loading = false;
+    }
+  }
+  
+
+  // initial load + whenever facility/month changes
+  onMount(() => {
+    refreshAvailability(); // initial load
+    const handler = () => {
+      // optional guard to avoid overlapping calls
+      if (!loading) refreshAvailability();
+    };
+    window.addEventListener('vb19:refresh-availability', handler);
+    return () => window.removeEventListener('vb19:refresh-availability', handler);
+  });
+
+  $: if ($selectedFacility) { /* facility changed */ refreshAvailability(); }
+  $: if (currentMonth != null && currentYear != null) { /* month changed */ refreshAvailability(); }
+
+  function generateCalendarDays(year: number, month: number, daysFromStore: Array<{date:string;status:string}> = []) {
+    const startDate = firstGridDay(year, month);
+    const days: any[] = [];
     for (let i = 0; i < 42; i++) {
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
-
+      const date = addDays(startDate, i);
       const dateAtMidnight = atMidnight(date);
-      const dateString = dateAtMidnight.toISOString().split('T')[0];
-      const dayStatus = getDayStatus(dateString);
+      const dateString = toISO(dateAtMidnight);
+      const dayStatus = getDayStatus(dateString, daysFromStore);
 
       const isOutsideWindow =
         dateAtMidnight < minSelectableDate || dateAtMidnight > maxSelectableDate;
@@ -99,19 +174,21 @@
     return days;
   }
 
-  function getDayStatus(dateString) {
-    const dayData = ($availability?.days || []).find(d => d.date === dateString);
+  function getDayStatus(dateString: string, daysArr: Array<{date:string;status:string}>) {
+    // @ts-ignore
+    const dayData = (daysArr || []).find((d) => d.date === dateString);
     return dayData ? dayData.status : 'free';
   }
 
-  // Use your vb19 theme colors to avoid purge issues
-  function getStatusColor(status, isSelected = false, isInRange = false, isOutsideWindow = false) {
-    if (isSelected) return 'bg-vb19-muted text-white';              // selected = purple
-    if (isInRange)  return 'bg-vb19-bg text-vb19-primary';          // range = soft brand
+  // Use your vb19 theme colors
+  function getStatusColor(status: string, isSelected = false, isInRange = false, isOutsideWindow = false) {
+    if (isSelected) return 'bg-vb19-muted text-white';
+    if (isInRange)  return 'bg-vb19-bg text-vb19-primary';
 
     switch (status) {
       case 'booked':   return 'bg-red-100 text-red-800 cursor-not-allowed';
       case 'blackout': return 'bg-gray-300 text-gray-600 cursor-not-allowed';
+      case 'pending':  return 'bg-amber-100 text-amber-800 cursor-not-allowed';
       case 'free':
         return isOutsideWindow
           ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
@@ -121,17 +198,18 @@
     }
   }
 
-  function getStatusIcon(status) {
+  function getStatusIcon(status: string) {
     switch (status) {
       case 'booked': return '✕';
       case 'blackout': return '⚫';
+      case 'pending': return '•';
       default: return '';
     }
   }
 
-  function handleDateClick(day) {
+  function handleDateClick(day: any) {
     if (!day.isSelectable) return;
-    const clickedDate = day.date;
+    const clickedDate: Date = day.date;
     if (clickedDate < minSelectableDate || clickedDate > maxSelectableDate) return;
 
     if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
@@ -154,17 +232,22 @@
     dispatch('datesSelect', { start: selectedStartDate, end: selectedEndDate});
   }
 
-  function validateSelection(start, end) {
-    if (!$selectedFacility || !start || !end) return true;
-    if (start < minSelectableDate || end > maxSelectableDate) return false;
+  function validateSelection(start: Date | null, end: Date | null) {
+    // @ts-ignore
+    if (!$selectedFacility || !start) return true;
+    const endEff = end ?? start;
 
-    const daysDiff = Math.ceil((end - start) / (1000*60*60*24)) + 1;
-    if (daysDiff > $selectedFacility.maxDays) return false;
+    if (start < minSelectableDate || endEff > maxSelectableDate) return false;
+
+    // @ts-ignore
+    const max = $selectedFacility.maxDays ?? 1;
+    const daysDiff = Math.ceil((atMidnight(endEff).getTime() - atMidnight(start).getTime()) / (1000*60*60*24)) + 1;
+    if (daysDiff > max) return false;
 
     const d = new Date(start);
-    while (d <= end) {
-      const dateString = atMidnight(d).toISOString().split('T')[0];
-      if (getDayStatus(dateString) !== 'free') return false;
+    while (d <= endEff) {
+      const dateString = toISO(atMidnight(d));
+      if (getDayStatus(dateString, $availability?.days ?? []) !== 'free') return false;
       d.setDate(d.getDate() + 1);
     }
     return true;
@@ -221,6 +304,13 @@
     {/if}
   </div>
 
+  <!-- Optional loading / error -->
+  {#if loading}
+    <div class="mb-3 text-sm text-vb19-muted">Loading availability…</div>
+  {:else if availError}
+    <div class="mb-3 text-sm text-red-600">{availError}</div>
+  {/if}
+
   <!-- Booking policy note (Clubroom only) -->
   {#if isOvernightFacility}
     <div class="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-vb19-text">
@@ -237,7 +327,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <span class="text-sm font-medium text-vb19-text">Selected:</span>
-          {#if $selectedFacility?.maxDays > 1 && selectedEndDate && totalDays > 1}
+          {#if ($selectedFacility?.maxDays ?? 1) > 1 && selectedEndDate && totalDays > 1}
             <span class="text-sm text-vb19-primary ml-2">
               {fmtDateEU(selectedStartDate)} – {fmtDateEU(selectedEndDate)}
             </span>
@@ -247,7 +337,6 @@
         </div>
 
         {#if isOvernightFacility}
-          <!-- Clubroom: show nights + times -->
           <div class="text-xs text-vb19-muted">
             {#if selectedEndDate}
               {totalNights} {totalNights === 1 ? 'night' : 'nights'}
@@ -257,8 +346,7 @@
             · Check-in after 18:00 · Check-out before 15:00
           </div>
         {:else}
-          <!-- Other facilities: show days (only when a range is selected) -->
-          {#if $selectedFacility?.maxDays > 1 && selectedEndDate && totalDays > 1}
+          {#if ($selectedFacility?.maxDays ?? 1) > 1 && selectedEndDate && totalDays > 1}
             <div class="text-xs text-vb19-muted">
               {totalDays} {totalDays === 1 ? 'day' : 'days'}
             </div>
@@ -308,11 +396,7 @@
         disabled={!day.isSelectable}
         aria-disabled={!day.isSelectable}
         on:click={() => handleDateClick(day)}
-        title={
-          isOvernightFacility
-            ? `${day.date.toLocaleDateString()} - ${day.status}. Check-in 18:00 · Check-out 15:00`
-            : `${day.date.toLocaleDateString()} - ${day.status}`
-        }
+        title={`${day.date.toLocaleDateString()} — ${day.status}`}
       >
         <span class="relative z-10">{day.day}</span>
 
@@ -334,12 +418,12 @@
       <span class="text-vb19-muted">Available</span>
     </div>
     <div class="flex items-center space-x-2">
-      <div class="w-3 h-3 bg-red-100 border border-red-200 rounded"></div>
-      <span class="text-vb19-muted">Booked</span>
+      <div class="w-3 h-3 bg-amber-100 border border-amber-200 rounded"></div>
+      <span class="text-vb19-muted">Pending</span>
     </div>
     <div class="flex items-center space-x-2">
-      <div class="w-3 h-3 bg-vb19-muted rounded"></div>
-      <span class="text-vb19-muted">Selected</span>
+      <div class="w-3 h-3 bg-red-100 border border-red-200 rounded"></div>
+      <span class="text-vb19-muted">Booked</span>
     </div>
     <div class="flex items-center space-x-2">
       <div class="w-3 h-3 bg-gray-300 rounded"></div>

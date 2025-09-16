@@ -1,40 +1,31 @@
-<script>
-  import { selectedFacility, selectedDates } from '$lib/stores/facilities.js';
+<script lang="ts">
+  import { selectedFacility, selectedDates } from '$lib/stores/facilities';
   import { createEventDispatcher } from 'svelte';
+  import { createReservation, exclusiveEnd } from '$lib/api';
+
 
   const dispatch = createEventDispatcher();
 
+  // ---------- validation + sanitizers ----------
   const ROOM_REGEX = /^[A-Za-z0-9 ]+$/;         // letters, numbers, spaces
-  const ROOM_MAXLEN = 10;                        // tweak if you want
-  const sanitizeRoom = (s) => s.replace(/[^A-Za-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
-  // Allow letters, spaces, hyphens, apostrophes
-  // Allowed set: letters, space, hyphen, apostrophe
-  const NAME_CHAR  = /^[A-Za-z' -]$/;
-  const NAME_REGEX = /^[A-Za-z' -]+$/;
+  const ROOM_MAXLEN = 10;
+  const sanitizeRoom = (s: string) => (s ?? '').replace(/[^A-Za-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
+
+  const NAME_REGEX  = /^[A-Za-z' -]+$/;         // letters, space, hyphen, apostrophe
   const NAME_MAXLEN = 60;
-
-  // Lenient while typing (keystrokes/paste)
-  const sanitizeNameInput = (s) => (s ?? '').replace(/[^A-Za-z' -]/g, '');
-
-  // Strict on blur/submit
-  const normalizeName = (s) =>
+  const sanitizeNameInput = (s: string) => (s ?? '').replace(/[^A-Za-z' -]/g, '');
+  const normalizeName = (s: string) =>
     (s ?? '')
       .replace(/[^A-Za-z' -]/g, '')
       .replace(/\s+/g, ' ')
-      .replace(/-{2,}/g, '-')   // collapse multiple hyphens
-      .replace(/'{2,}/g, "'")   // collapse multiple apostrophes
-      .replace(/^[ '-]+|[ '-]+$/g, ''); // trim leading/trailing space/'/-
+      .replace(/-{2,}/g, '-')
+      .replace(/'{2,}/g, "'")
+      .replace(/^[ '-]+|[ '-]+$/g, '');
 
-      const EMAIL_MAXLEN = 254;
-
-  // remove junk *while typing/pasting* (don’t remove '+')
-  const sanitizeEmailInput = (s) =>
-  (s ?? '')
-    .replace(/[\s\r\n\t<>,:;#$%^*&!()=+{}|"?/~]/g, '')  // <-- added , ;
-    .trim();
-
-  // normalize *on blur/submit*
-  const normalizeEmailOnBlur = (s) => {
+  const EMAIL_MAXLEN = 254;
+  const sanitizeEmailInput = (s: string) =>
+    (s ?? '').replace(/[\s\r\n\t<>,:;#$%^*&!()=+{}|"?/~]/g, '').trim();
+  const normalizeEmailOnBlur = (s: string) => {
     s = sanitizeEmailInput(s);
     const at = s.lastIndexOf('@');
     if (at === -1) return s;
@@ -42,9 +33,7 @@
     const domain = s.slice(at + 1).toLowerCase();
     return `${local}@${domain}`;
   };
-
-  // broad, lenient validator (still allows IDNs & plus addressing)
-  function isLikelyEmail(s) {
+  function isLikelyEmail(s: string) {
     if (!s) return false;
     if (s.length > EMAIL_MAXLEN) return false;
     if (/[ \t\r\n]/.test(s)) return false;
@@ -52,29 +41,26 @@
     if (parts.length !== 2) return false;
     const [local, domain] = parts;
     if (!local || !domain) return false;
-    if (!domain.includes('.')) return false;             // need at least one dot
+    if (!domain.includes('.')) return false;
     const labels = domain.split('.');
-    // no empty labels, no leading/trailing '-', each <= 63 chars
     if (labels.some(l => !l || l.startsWith('-') || l.endsWith('-') || l.length > 63)) return false;
     return true;
   }
-
-  // block bad keystrokes (space, CR/LF, < > , ;)
-  function preventBadEmailChars(e) {
+  function preventBadEmailChars(e: InputEvent & { data?: string }) {
+    // block space, CR/LF, < > , ;
+    // @ts-ignore
     if (e.isComposing) return;
-    if (e.inputType === 'insertText' && /[\s\r\n<>,;]/.test(e.data)) {
-      e.preventDefault();
-    }
+    // @ts-ignore
+    if (e.inputType === 'insertText' && /[\s\r\n<>,;]/.test(e.data || '')) e.preventDefault();
   }
-
-  function handleEmailPaste(e) {
+  function handleEmailPaste(e: ClipboardEvent) {
     const text = e.clipboardData?.getData('text') ?? '';
     const clean = sanitizeEmailInput(text);
     if (text !== clean) {
       e.preventDefault();
-      const el = e.target;
+      const el = e.target as HTMLInputElement;
       const { selectionStart, selectionEnd, value } = el;
-      const next = value.slice(0, selectionStart) + clean + value.slice(selectionEnd);
+      const next = value.slice(0, selectionStart ?? 0) + clean + value.slice(selectionEnd ?? value.length);
       el.value = next;
       handleInputChange('email', next);
       const pos = (selectionStart ?? 0) + clean.length;
@@ -82,11 +68,9 @@
     }
   }
 
-
-
-  // ---- helpers ----
-  function atMidnight(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
-  function toISODateLocal(d) {
+  // ---------- date helpers ----------
+  function atMidnight(d: Date) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
+  function toISODateLocal(d?: Date | null) {
     if (!d) return null;
     const x = atMidnight(d);
     const y = x.getFullYear();
@@ -94,20 +78,20 @@
     const day = String(x.getDate()).padStart(2,'0');
     return `${y}-${m}-${day}`;
   }
-  function fmtEU(d) { return d?.toLocaleDateString('en-GB'); }
+  function fmtEU(d?: Date | null) { return d ? d.toLocaleDateString('en-GB') : ''; }
 
-  // Form data/state
+  // ---------- state ----------
   let formData = { roomNumber: '', name: '', email: '' };
   let isSubmitting = false;
-  let submitStatus = null; // 'success' | 'error' | null
+  let submitStatus: 'success' | 'error' | null = null;
   let submitMessage = '';
-  let fieldErrors = {};
+  let fieldErrors: Record<string, string> = {};
 
-  // Derived
-  $: start = $selectedDates.start;
-  $: end   = $selectedDates.end;
+  // ---------- derived from stores ----------
+  $: start = $selectedDates.start as Date | null;
+  $: end   = $selectedDates.end as Date | null;
 
-  $: isRangeFacility = $selectedFacility?.maxDays > 1;
+  $: isRangeFacility = ($selectedFacility?.maxDays ?? 1) > 1;
   $: hasValidDates = !!start;
 
   $: selectedDateLabel = !start
@@ -116,92 +100,72 @@
       ? `${fmtEU(start)} – ${fmtEU(end)}`
       : fmtEU(start);
 
-  function isValidEmail(email) {
+  function isValidEmailBasic(email: string) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
-  // Reactive “can submit”
   $: isFormValid =
     formData.roomNumber.trim() &&
     formData.name.trim() &&
     formData.email.trim() &&
-    isValidEmail(formData.email) &&
+    isValidEmailBasic(formData.email) &&
     hasValidDates;
 
-  function validateForm() {
-    const errors = {};
+  // Map UI displayName → API enum
+  function toApiFacilityName(displayName?: string) {
+    const s = (displayName || '').toLowerCase();
+    if (s.includes('club')) return 'CLUB_ROOM' as const;
+    if (s.includes('game')) return 'GAMES_ROOM' as const;
+    if (s.includes('bbq'))  return 'BBQ_AREA'  as const;
+    // fallback if your store already has the enum
+    // @ts-ignore
+    return $selectedFacility?.name ?? 'BBQ_AREA';
+  }
 
-    if (!formData.roomNumber.trim()) errors.roomNumber = 'Room number is required';
-    if (!formData.name.trim()) errors.name = 'Name is required';
-    if (!formData.email.trim()) {
-      errors.email = 'Email is required';
-    } else if (!isValidEmail(formData.email)) {
-      errors.email = 'Please enter a valid email address';
-    }
+  function validateForm() {
+    const errors: Record<string,string> = {};
 
     // Room number
     const rn = sanitizeRoom(formData.roomNumber || '');
-    if (!rn) {
-      errors.roomNumber = 'Room number is required';
-    } else if (!ROOM_REGEX.test(rn)) {
-      errors.roomNumber = 'Use letters, numbers, and spaces only';
-    } else if (rn.length > ROOM_MAXLEN) {
-      errors.roomNumber = `Max ${ROOM_MAXLEN} characters`;
-    } else {
-      formData.roomNumber = rn; // keep normalized value
-    }
+    if (!rn) errors.roomNumber = 'Room number is required';
+    else if (!ROOM_REGEX.test(rn)) errors.roomNumber = 'Use letters, numbers, and spaces only';
+    else if (rn.length > ROOM_MAXLEN) errors.roomNumber = `Max ${ROOM_MAXLEN} characters`;
+    else formData.roomNumber = rn;
 
-    // --- Full name ---
+    // Full name
     const nm = normalizeName(formData.name);
-    if (!nm) {
-      errors.name = 'Name is required';
-    } else if (!NAME_REGEX.test(nm)) {
-      errors.name = "Use letters, spaces, hyphens (-), and apostrophes (') only";
-    } else if (nm.length > NAME_MAXLEN) {
-      errors.name = `Max ${NAME_MAXLEN} characters`;
-    } else {
-      formData.name = nm; // keep normalized
-    }
+    if (!nm) errors.name = 'Name is required';
+    else if (!NAME_REGEX.test(nm)) errors.name = "Use letters, spaces, hyphens (-), and apostrophes (') only";
+    else if (nm.length > NAME_MAXLEN) errors.name = `Max ${NAME_MAXLEN} characters`;
+    else formData.name = nm;
 
     // Email
     const em = normalizeEmailOnBlur(formData.email);
-    if (!em) {
-      errors.email = 'Email is required';
-    } else if (!isLikelyEmail(em)) {
-      errors.email = 'Please enter a valid email address';
-    } else {
-      formData.email = em; // keep normalized email (domain lowercased)
-    }
+    if (!em) errors.email = 'Email is required';
+    else if (!isLikelyEmail(em)) errors.email = 'Please enter a valid email address';
+    else formData.email = em;
 
-    if (!start) {
-      errors.dates = 'Please select your booking dates';
-    }
+    if (!start) errors.dates = 'Please select your booking dates';
 
     fieldErrors = errors;
     return Object.keys(errors).length === 0;
   }
 
-  function handleInputChange(field, value) {
-  if (field === 'roomNumber') {
-    value = sanitizeRoom(value); // live sanitize
-  }
-  if (field === 'name') {
-    value = sanitizeNameInput(value); // lenient while typing, removes , . ;
-  }
-  if (field === 'email') {
-    value = sanitizeEmailInput(value); // lenient while typing, removes , . ;
+  function handleInputChange(field: 'roomNumber'|'name'|'email', value: string) {
+    if (field === 'roomNumber') value = sanitizeRoom(value);
+    if (field === 'name')       value = sanitizeNameInput(value);
+    if (field === 'email')      value = sanitizeEmailInput(value);
+
+    // @ts-ignore
+    formData[field] = value;
+
+    if (fieldErrors[field]) {
+      const { [field]: _, ...rest } = fieldErrors;
+      fieldErrors = rest;
+    }
   }
 
-  formData[field] = value;
-
-  // Clear field error when user starts typing
-  if (fieldErrors[field]) {
-    const { [field]: _, ...rest } = fieldErrors;
-    fieldErrors = rest;
-  }
-}
-
-
+  // ---------- submit (calls real backend) ----------
   async function handleSubmit() {
     if (!validateForm()) return;
 
@@ -209,54 +173,57 @@
     submitStatus = null;
     submitMessage = '';
 
+    const startDate = toISODateLocal(start)!;
+    const endUi     = isRangeFacility && end ? toISODateLocal(end)! : startDate;
+    const endDate   = exclusiveEnd(endUi); // backend expects EXCLUSIVE end-date
+
+    const facilityName = toApiFacilityName($selectedFacility?.displayName);
+
     const payload = {
-      facilityId: $selectedFacility?.id,
-      facilityName: $selectedFacility?.displayName,
-      requiresApproval: !!$selectedFacility?.requiresApproval,
-      startDate: toISODateLocal(start),
-      endDate: isRangeFacility ? toISODateLocal(end ?? start) : toISODateLocal(start),
+      facilityName,                 // 'CLUB_ROOM' | 'GAMES_ROOM' | 'BBQ_AREA'
+      startDate,                    // 'YYYY-MM-DD'
+      endDate,                      // exclusive end
       roomNumber: formData.roomNumber.trim(),
       name: formData.name.trim(),
       email: formData.email.trim()
     };
 
     try {
-      // Simulate API call
-      await simulateBookingSubmission();
+      const res = await createReservation(payload);
 
       submitStatus = 'success';
-      if ($selectedFacility?.requiresApproval) {
-        submitMessage = `Thanks! We've received your request for the ${$selectedFacility.displayName} (${selectedDateLabel}). A representative will contact you to arrange key pickup. A €200 deposit is required at pickup.`;
+      // right after success handling, before setTimeout(resetForm,...)
+      window.dispatchEvent(new CustomEvent('vb19:refresh-availability'));
+
+      const label = selectedDateLabel || `${startDate}${endUi !== startDate ? ` – ${endUi}` : ''}`;
+
+      if (res.status === 'CONFIRMED') {
+        submitMessage = `Success! Your ${$selectedFacility.displayName} booking for ${label} is confirmed. We’ve emailed ${formData.email}.`;
       } else {
-        submitMessage = `Success! Your ${$selectedFacility.displayName} booking for ${selectedDateLabel} is confirmed. We've emailed the details to ${formData.email}.`;
+        submitMessage = `Thanks! We’ve received your request for the ${$selectedFacility.displayName} (${label}). A representative will contact you to arrange key pickup. A €200 deposit is required at pickup.`;
       }
 
-      // You can also emit upward if a parent wants to handle it:
-      dispatch('submit', payload);
-
-      // Reset after a short delay
+      dispatch('submit', { ...payload, id: res.id, status: res.status });
       setTimeout(resetForm, 4000);
-    } catch (error) {
+    } catch (err: any) {
       submitStatus = 'error';
-      if (error.code === 'UNAVAILABLE') {
-        submitMessage = 'Sorry, those dates are no longer available. Please choose different dates.';
-      } else if (error.code === 'INVALID_INPUT') {
+      if (err?.error === 'UNAVAILABLE' || err?.error === 'UNAVAILABLE_BLACKOUT') {
+        submitMessage = 'Sorry, those dates are not available. Please choose different dates.';
+      } else if (err?.error === 'TOO_LONG') {
+        submitMessage = `Selected date range is too long. Max ${$selectedFacility?.maxDays ?? 1} day(s) for this facility.`;
+      } else if (err?.error === 'INVALID_EMAIL') {
+        fieldErrors = { ...fieldErrors, email: 'Please enter a valid email address' };
         submitMessage = 'Please check your information and try again.';
-        fieldErrors = error.fieldErrors || {};
+      } else if (err?.error === 'BAD_DATES') {
+        fieldErrors = { ...fieldErrors, dates: 'Please check your dates' };
+        submitMessage = 'Please check your information and try again.';
       } else {
         submitMessage = 'Something went wrong. Please try again or contact our representatives.';
+        console.error('createReservation failed:', err);
       }
     } finally {
       isSubmitting = false;
     }
-  }
-
-  async function simulateBookingSubmission() {
-    await new Promise(r => setTimeout(r, 1200));
-    const random = Math.random();
-    if (random < 0.08) throw { code: 'UNAVAILABLE' };
-    if (random < 0.12) throw { code: 'INVALID_INPUT', fieldErrors: { email: 'This email is already in use for this date' } };
-    return { id: Math.floor(Math.random() * 1000) };
   }
 
   function resetForm() {
@@ -264,7 +231,7 @@
     fieldErrors = {};
     submitStatus = null;
     submitMessage = '';
-    // keep selectedDates so user sees what they booked; or clear if you prefer
+    // optionally clear selectedDates too
     // selectedDates.set({ start: null, end: null });
   }
 </script>
@@ -336,7 +303,7 @@
           class="form-input {fieldErrors.roomNumber ? 'border-red-300 focus:ring-red-500' : ''}"
           placeholder="e.g., 1510, 2313, WB215, PW3"
           bind:value={formData.roomNumber}
-          on:input={(e) => handleInputChange('roomNumber', e.target.value)}
+          on:input={(e) => handleInputChange('roomNumber', (e.target as HTMLInputElement).value)}
           disabled={isSubmitting}
           autocomplete="off"
           spellcheck="false"
@@ -355,7 +322,7 @@
           class="form-input {fieldErrors.name ? 'border-red-300 focus:ring-red-500' : ''}"
           placeholder="Your full name"
           bind:value={formData.name}
-          on:input={(e) => handleInputChange('name', e.target.value)}
+          on:input={(e) => handleInputChange('name', (e.target as HTMLInputElement).value)}
           autocomplete="name"
           spellcheck="false"
           maxlength="60"
@@ -374,9 +341,9 @@
           class="form-input {fieldErrors.email ? 'border-red-300 focus:ring-red-500' : ''}"
           placeholder="your.email@example.com"
           bind:value={formData.email}
-          on:beforeinput={preventBadEmailChars}                      
-          on:paste={handleEmailPaste}                           
-          on:input={(e) => handleInputChange('email', e.target.value)}
+          on:beforeinput={preventBadEmailChars}
+          on:paste={handleEmailPaste}
+          on:input={(e) => handleInputChange('email', (e.target as HTMLInputElement).value)}
           on:blur={() => (formData.email = normalizeEmailOnBlur(formData.email))}
           inputmode="email"
           autocomplete="email"
