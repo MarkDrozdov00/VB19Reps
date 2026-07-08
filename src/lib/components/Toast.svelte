@@ -63,7 +63,8 @@
 
 {#if visible}
   <div 
-    class="fixed top-4 right-4 z-50 max-w-sm w-full transform transition-all duration-300 ease-in-out"
+    class="fixed right-4 z-[30000] w-full max-w-[calc(100vw-32px)] sm:max-w-sm transform transition-all duration-300 ease-in-out"
+    style="top: calc(var(--header-height, 80px) + 16px);"
     role="alert"
   >
     <div class="p-4 border rounded-lg shadow-lg {getTypeStyles(type)}">
@@ -96,4 +97,3 @@
     </div>
   </div>
 {/if}
-
