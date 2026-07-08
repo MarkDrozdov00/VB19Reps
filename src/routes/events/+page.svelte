@@ -39,8 +39,8 @@
     date: formatDisplayDate(event.eventDate),
     location: 'ViennaBase19'
   }));
-  $: databasePosterPaths = new Set(databaseDisplayEvents.map((event) => event.poster));
-  $: fallbackArchiveEvents = archiveEvents.filter((event) => !databasePosterPaths.has(event.poster));
+  $: databasePosterKeys = new Set(databaseDisplayEvents.map((event) => posterKey(event.poster)));
+  $: fallbackArchiveEvents = archiveEvents.filter((event) => !databasePosterKeys.has(posterKey(event.poster)));
 
   $: upcomingEvents = databaseDisplayEvents
     .filter((event) => event.eventDate !== null && event.eventDate >= todayIso)
@@ -61,6 +61,10 @@
     if (path.startsWith(base + '/')) return path;
     if (path.startsWith('/')) return `${base}${path}`;
     return `${base}/${path}`;
+  }
+
+  function posterKey(path: string) {
+    return path.replace(/\.(jpe?g|png|webp)$/i, '');
   }
 
   function toISO(date: Date) {

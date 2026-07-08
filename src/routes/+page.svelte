@@ -65,6 +65,7 @@
 <svelte:head>
   <title>ViennaBase19 - Book Your Facility</title>
   <meta name="description" content="Book shared facilities at ViennaBase19. Choose from Club Room, Games Room, or BBQ Area for your next gathering." />
+  <link rel="preload" as="image" href={asset('/banner.webp')} type="image/webp" />
 </svelte:head>
 
 <!-- Hero Section -->
@@ -72,7 +73,7 @@
   <!-- Background Image (base-aware) -->
   <div
     class="absolute inset-0 bg-cover bg-center bg-no-repeat"
-    style={`background-image: url('${asset('/banner.png')}')`}
+    style={`background-image: url('${asset('/banner.webp')}')`}
   ></div>
   <div class="absolute inset-0 bg-black/40"></div>
 

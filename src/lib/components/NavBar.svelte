@@ -6,16 +6,31 @@
   let mobileOpen = false;
   let isScrolled = false;
 
-  // includes base (e.g. /VB19Reps/...)
-  $: currentPath = $page.url.pathname;
-
   // Build hrefs that respect the base path
   const href = (path = '/') => `${base}${path === '/' ? '/' : path}`;
 
+  function normalizePath(path = '/') {
+    let normalized = path || '/';
+
+    if (base && normalized.startsWith(base)) {
+      normalized = normalized.slice(base.length) || '/';
+    }
+
+    return normalized.replace(/\/+$/, '') || '/';
+  }
+
+  // Current route without base/trailing slash noise.
+  $: currentPath = normalizePath($page.url.pathname);
+
   // Active helpers
   const isActive = (path = '/') => {
-    const full = href(path);
-    return currentPath === full || (path !== '/' && currentPath.startsWith(full));
+    const target = normalizePath(path);
+
+    if (target === '/') {
+      return currentPath === '/';
+    }
+
+    return currentPath === target || currentPath.startsWith(`${target}/`);
   };
 
   const desktopLinkClass = (active) =>

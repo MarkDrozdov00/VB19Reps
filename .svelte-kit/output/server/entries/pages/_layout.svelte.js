@@ -32,12 +32,22 @@ function NavBar($$payload, $$props) {
   let currentPath;
   let mobileOpen = false;
   const href = (path = "/") => `${base}${path === "/" ? "/" : path}`;
+  function normalizePath(path = "/") {
+    let normalized = path || "/";
+    if (base && normalized.startsWith(base)) {
+      normalized = normalized.slice(base.length) || "/";
+    }
+    return normalized.replace(/\/+$/, "") || "/";
+  }
   const isActive = (path = "/") => {
-    const full = href(path);
-    return currentPath === full || path !== "/" && currentPath.startsWith(full);
+    const target = normalizePath(path);
+    if (target === "/") {
+      return currentPath === "/";
+    }
+    return currentPath === target || currentPath.startsWith(`${target}/`);
   };
   const desktopLinkClass = (active) => `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${active ? "text-vb19-primary bg-blue-50" : "text-vb19-muted hover:text-vb19-text hover:bg-gray-50"}`;
-  currentPath = store_get($$store_subs ??= {}, "$page", page).url.pathname;
+  currentPath = normalizePath(store_get($$store_subs ??= {}, "$page", page).url.pathname);
   $$payload.out.push(`<nav${attr_class(`sticky top-0 z-[10000] border-b backdrop-blur-md transition-[background-color,box-shadow,border-color,backdrop-filter] duration-300 ease-out supports-[backdrop-filter]:bg-white/85 ${"bg-white/95 border-gray-100 shadow-sm"}`)}><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex justify-between items-center h-16"><div class="flex items-center"><a${attr("href", href("/"))} class="flex items-center space-x-2"><div class="w-8 h-8 bg-vb19-primary rounded-lg flex items-center justify-center"><span class="text-white font-bold text-sm">VB</span></div> <span class="text-xl font-semibold text-vb19-text">ViennaBase19 Reps</span></a></div> <div class="hidden md:block"><div class="ml-10 flex items-baseline space-x-8"><a${attr("href", href("/"))}${attr_class(clsx(desktopLinkClass(isActive("/"))))}${attr("aria-current", isActive("/") ? "page" : void 0)}>Home</a> <a${attr("href", href("/events"))}${attr_class(clsx(desktopLinkClass(isActive("/events"))))}${attr("aria-current", isActive("/events") ? "page" : void 0)}>Events</a> <a${attr("href", href("/admin"))}${attr_class(clsx(desktopLinkClass(isActive("/admin"))))}${attr("aria-current", isActive("/admin") ? "page" : void 0)}>Admin</a></div></div> <div class="md:hidden"><button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-vb19-muted hover:text-vb19-text hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-vb19-primary"${attr("aria-expanded", mobileOpen)} aria-controls="mobile-menu"><span class="sr-only">Open main menu</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"${attr("d", "M4 6h16M4 12h16M4 18h16")}></path></svg></button></div></div></div> `);
   {
     $$payload.out.push("<!--[!-->");

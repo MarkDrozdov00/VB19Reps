@@ -3,8 +3,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("DB_URL")!;
 const SUPABASE_SERVICE_ROLE = Deno.env.get("DB_SERVICE_ROLE")!;
-const TIMEZONE = Deno.env.get("TIMEZONE") || "Europe/Vienna";
 const BASE_REPS_MAILER_URL = Deno.env.get("BASE_REPS_MAILER_URL") || "";
+const BASE_REPS_MAILER_API_KEY = Deno.env.get("BASE_REPS_MAILER_API_KEY") || "";
 
 const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE);
 
@@ -24,12 +24,18 @@ function json(data: unknown, status: number) {
 async function sendBaseRepsReservationEmailsSafe(payload: {
   customerEmail: string;
   customerName: string;
-  reservationDate: string;
-  reservationTime: string;
-  reservationName: string;
+  facilityName: string;
+  startDate: string;
+  endDate: string;
+  roomNumber: string;
 }) {
   if (!BASE_REPS_MAILER_URL) {
-    console.error("Base Reps email error: BASE_REPS_MAILER_URL is not configured");
+    console.error("Base Reps mailer error: BASE_REPS_MAILER_URL is not configured");
+    return;
+  }
+
+  if (!BASE_REPS_MAILER_API_KEY) {
+    console.error("Base Reps mailer error: BASE_REPS_MAILER_API_KEY is not configured");
     return;
   }
 
@@ -37,16 +43,17 @@ async function sendBaseRepsReservationEmailsSafe(payload: {
     const resp = await fetch(BASE_REPS_MAILER_URL, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Authorization": `Bearer ${BASE_REPS_MAILER_API_KEY}`,
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
     const text = await resp.text();
     if (!resp.ok) {
-      console.error("Base Reps email error:", resp.status, text);
+      console.error("Base Reps mailer error:", resp.status, text);
     }
   } catch (e) {
-    console.error("Base Reps email error:", e);
+    console.error("Base Reps mailer error:", e);
   }
 }
 
@@ -57,28 +64,6 @@ function exclusiveEnd(inclusiveEnd: string) {
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
-}
-
-function prettyFacility(name: string): string {
-  switch (name) {
-    case "CLUB_ROOM":  return "Club Room";
-    case "GAMES_ROOM": return "Games Room";
-    case "BBQ_AREA":   return "BBQ Area";
-    default:           return name;
-  }
-}
-
-function prettyDate(date: Date): string {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    timeZone: TIMEZONE
-  }).formatToParts(date);
-  const day = parts.find((part) => part.type === "day")?.value;
-  const month = parts.find((part) => part.type === "month")?.value;
-  const year = parts.find((part) => part.type === "year")?.value;
-  return `${day}-${month}-${year}`;
 }
 
 Deno.serve(async (req) => {
@@ -105,8 +90,6 @@ Deno.serve(async (req) => {
       console.warn("facility not found for", facilityName);
       return json({ error: "UNKNOWN_FACILITY", facilityName }, 400);
     }
-
-    const prettyName = prettyFacility(fac.name);
 
     // 2) range and policy checks
     const start = new Date(startDate + "T00:00:00");
@@ -174,17 +157,14 @@ Deno.serve(async (req) => {
   }
 
 
-    // 5) emails (do not fail the request if emails fail)
-    const prettyStart = prettyDate(start);
-    const prettyEndInc = prettyDate(new Date(endEx.getTime() - 86400000));
-    const prettyDates = diffDays === 1 ? prettyStart : `${prettyStart} - ${prettyEndInc}`;
-
+    // 5) mailer notification (do not fail the reservation if the mailer fails)
     await sendBaseRepsReservationEmailsSafe({
       customerEmail: email,
       customerName: name,
-      reservationDate: prettyDates,
-      reservationTime: "All day",
-      reservationName: prettyName
+      facilityName,
+      startDate,
+      endDate: endDate ?? endEx.toISOString().slice(0, 10),
+      roomNumber,
     });
     
 

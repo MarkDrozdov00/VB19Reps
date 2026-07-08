@@ -42,7 +42,7 @@ export const facilitiesData: Facility[] = [
     depositEur: 200,
     termsNote:
       'A €200 deposit is required when picking up the key. Terms of Use contract must be signed at key pickup.',
-    images: [{ url: withBase('/club-room.jpg'), alt: 'Club Room - Main Area' }]
+    images: [{ url: withBase('/club-room.webp'), alt: 'Club Room - Main Area' }]
   },
   {
     id: 2,
@@ -56,11 +56,11 @@ export const facilitiesData: Facility[] = [
     termsNote:
       'A €200 deposit is required when picking up the key. Terms of Use contract must be signed at key pickup.',
     images: [
-      { url: withBase('/gamesroom/1.jpeg'), alt: 'Games Room - Gaming Setup 1' },
-      { url: withBase('/gamesroom/2.jpeg'), alt: 'Games Room - Gaming Setup 2' },
-      { url: withBase('/gamesroom/3.jpeg'), alt: 'Games Room - Gaming Setup 3' },
-      { url: withBase('/gamesroom/4.jpeg'), alt: 'Games Room - Gaming Setup 4' },
-      { url: withBase('/gamesroom/5.jpeg'), alt: 'Games Room - Gaming Setup 5' }
+      { url: withBase('/gamesroom/1.webp'), alt: 'Games Room - Gaming Setup 1' },
+      { url: withBase('/gamesroom/2.webp'), alt: 'Games Room - Gaming Setup 2' },
+      { url: withBase('/gamesroom/3.webp'), alt: 'Games Room - Gaming Setup 3' },
+      { url: withBase('/gamesroom/4.webp'), alt: 'Games Room - Gaming Setup 4' },
+      { url: withBase('/gamesroom/5.webp'), alt: 'Games Room - Gaming Setup 5' }
     ]
   },
   {
@@ -73,7 +73,7 @@ export const facilitiesData: Facility[] = [
     requiresApproval: false,
     depositEur: null,
     termsNote: null,
-    images: [{ url: withBase('/bbq-area.jpg'), alt: 'BBQ Area - Grilling Space' }]
+    images: [{ url: withBase('/bbq-area.webp'), alt: 'BBQ Area - Grilling Space' }]
   }
 ];
 

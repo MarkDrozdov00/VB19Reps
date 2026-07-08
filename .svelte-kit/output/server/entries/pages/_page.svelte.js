@@ -18,7 +18,7 @@ function withBase(url) {
     requiresApproval: true,
     depositEur: 200,
     termsNote: "A €200 deposit is required when picking up the key. Terms of Use contract must be signed at key pickup.",
-    images: [{ url: withBase("/club-room.jpg"), alt: "Club Room - Main Area" }]
+    images: [{ url: withBase("/club-room.webp"), alt: "Club Room - Main Area" }]
   },
   {
     id: 2,
@@ -30,11 +30,11 @@ function withBase(url) {
     depositEur: 200,
     termsNote: "A €200 deposit is required when picking up the key. Terms of Use contract must be signed at key pickup.",
     images: [
-      { url: withBase("/gamesroom/1.jpeg"), alt: "Games Room - Gaming Setup 1" },
-      { url: withBase("/gamesroom/2.jpeg"), alt: "Games Room - Gaming Setup 2" },
-      { url: withBase("/gamesroom/3.jpeg"), alt: "Games Room - Gaming Setup 3" },
-      { url: withBase("/gamesroom/4.jpeg"), alt: "Games Room - Gaming Setup 4" },
-      { url: withBase("/gamesroom/5.jpeg"), alt: "Games Room - Gaming Setup 5" }
+      { url: withBase("/gamesroom/1.webp"), alt: "Games Room - Gaming Setup 1" },
+      { url: withBase("/gamesroom/2.webp"), alt: "Games Room - Gaming Setup 2" },
+      { url: withBase("/gamesroom/3.webp"), alt: "Games Room - Gaming Setup 3" },
+      { url: withBase("/gamesroom/4.webp"), alt: "Games Room - Gaming Setup 4" },
+      { url: withBase("/gamesroom/5.webp"), alt: "Games Room - Gaming Setup 5" }
     ]
   },
   {
@@ -46,7 +46,7 @@ function withBase(url) {
     requiresApproval: false,
     depositEur: null,
     termsNote: null,
-    images: [{ url: withBase("/bbq-area.jpg"), alt: "BBQ Area - Grilling Space" }]
+    images: [{ url: withBase("/bbq-area.webp"), alt: "BBQ Area - Grilling Space" }]
   }
 ];
 const selectedFacility = writable(null);
@@ -72,9 +72,9 @@ function _page($$payload, $$props) {
   }
   head($$payload, ($$payload2) => {
     $$payload2.title = `<title>ViennaBase19 - Book Your Facility</title>`;
-    $$payload2.out.push(`<meta name="description" content="Book shared facilities at ViennaBase19. Choose from Club Room, Games Room, or BBQ Area for your next gathering."/>`);
+    $$payload2.out.push(`<meta name="description" content="Book shared facilities at ViennaBase19. Choose from Club Room, Games Room, or BBQ Area for your next gathering."/> <link rel="preload" as="image"${attr("href", asset("/banner.webp"))} type="image/webp"/>`);
   });
-  $$payload.out.push(`<section class="relative min-h-screen flex items-center justify-center overflow-hidden"><div class="absolute inset-0 bg-cover bg-center bg-no-repeat"${attr_style(`background-image: url('${asset("/banner.png")}')`)}></div> <div class="absolute inset-0 bg-black/40"></div> <div class="relative z-10 text-center px-4 max-w-4xl mx-auto"><div class="animate-bounce-in"><h1 class="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">Welcome to ViennaBase19 <span class="block bg-gradient-to-r from-yellow-300 via-pink-300 to-orange-300 bg-clip-text text-transparent">Reps Portal</span></h1></div> <div class="animate-slide-up" style="animation-delay: 0.3s;"><p class="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">We’re working hard to make dorm life even better — upgrading current spaces, adding new facilities, and bringing you fun events to enjoy together!</p></div> <div class="animate-slide-up" style="animation-delay: 0.6s;"><p class="text-lg text-white/80 mb-12">Select a facility, choose your dates, and submit your booking request. Our representatives will review and confirm your request.</p></div> <div class="animate-slide-up" style="animation-delay: 0.9s;"><button class="btn-primary text-lg px-8 py-4 pulse-glow">🚀 Start Booking</button></div></div> <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce"><div class="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center"><div class="w-1 h-3 bg-white/70 rounded-full mt-2 animate-pulse"></div></div></div></section> <section id="booking-section" class="booking-flow py-20 px-4 svelte-1uha8ag"><div class="max-w-7xl mx-auto"><div class="text-center mb-16 animate-slide-up"><h2 class="text-4xl md:text-5xl font-bold gradient-text mb-6">Book Your Facility</h2> <p class="text-xl text-gray-600 max-w-3xl mx-auto">Select a facility, choose your dates, and submit your booking request. Our representatives will review and confirm your request.</p></div> <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start"><div class="flex flex-col gap-8 animate-slide-up relative overflow-visible" style="animation-delay: 0.2s;"><div class="card relative z-[100] overflow-visible"><h3 class="text-2xl font-bold gradient-text mb-6 flex items-center"><span class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">1</span> What would you like to book?</h3> `);
+  $$payload.out.push(`<section class="relative min-h-screen flex items-center justify-center overflow-hidden"><div class="absolute inset-0 bg-cover bg-center bg-no-repeat"${attr_style(`background-image: url('${asset("/banner.webp")}')`)}></div> <div class="absolute inset-0 bg-black/40"></div> <div class="relative z-10 text-center px-4 max-w-4xl mx-auto"><div class="animate-bounce-in"><h1 class="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">Welcome to ViennaBase19 <span class="block bg-gradient-to-r from-yellow-300 via-pink-300 to-orange-300 bg-clip-text text-transparent">Reps Portal</span></h1></div> <div class="animate-slide-up" style="animation-delay: 0.3s;"><p class="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">We’re working hard to make dorm life even better — upgrading current spaces, adding new facilities, and bringing you fun events to enjoy together!</p></div> <div class="animate-slide-up" style="animation-delay: 0.6s;"><p class="text-lg text-white/80 mb-12">Select a facility, choose your dates, and submit your booking request. Our representatives will review and confirm your request.</p></div> <div class="animate-slide-up" style="animation-delay: 0.9s;"><button class="btn-primary text-lg px-8 py-4 pulse-glow">🚀 Start Booking</button></div></div> <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce"><div class="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center"><div class="w-1 h-3 bg-white/70 rounded-full mt-2 animate-pulse"></div></div></div></section> <section id="booking-section" class="booking-flow py-20 px-4 svelte-1uha8ag"><div class="max-w-7xl mx-auto"><div class="text-center mb-16 animate-slide-up"><h2 class="text-4xl md:text-5xl font-bold gradient-text mb-6">Book Your Facility</h2> <p class="text-xl text-gray-600 max-w-3xl mx-auto">Select a facility, choose your dates, and submit your booking request. Our representatives will review and confirm your request.</p></div> <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start"><div class="flex flex-col gap-8 animate-slide-up relative overflow-visible" style="animation-delay: 0.2s;"><div class="card relative z-[100] overflow-visible"><h3 class="text-2xl font-bold gradient-text mb-6 flex items-center"><span class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">1</span> What would you like to book?</h3> `);
   FacilityPicker($$payload);
   $$payload.out.push(`<!----></div> `);
   {

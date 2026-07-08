@@ -11,7 +11,7 @@ export interface Event {
 export const events: Event[] = [
   {
     id: 1,
-    poster: "/posters/1.jpg",
+    poster: "/posters/1.webp",
     title: "Beach Night",
     shortDescription: "Tropical decorations, summer beats, and beach-themed fun to wrap up the semester.",
     location: "ViennaBase19",
@@ -19,7 +19,7 @@ export const events: Event[] = [
   },
   {
     id: 2,
-    poster: "/posters/2.jpg",
+    poster: "/posters/2.webp",
     title: "Games Night",
     shortDescription: "Cards, board games, pool, and friendly competition in a relaxed social atmosphere.",
     location: "ViennaBase19",
@@ -27,7 +27,7 @@ export const events: Event[] = [
   },
   {
     id: 3,
-    poster: "/posters/3.jpg",
+    poster: "/posters/3.webp",
     title: "90s Opening Party",
     shortDescription: "Travel back to the 90s with retro music, colorful outfits, and nostalgic games.",
     location: "ViennaBase19",
@@ -35,7 +35,7 @@ export const events: Event[] = [
   },
   {
     id: 4,
-    poster: "/posters/4.jpg",
+    poster: "/posters/4.webp",
     title: "Halloween Fright Night",
     shortDescription: "Costumes, spooky decorations, music, and Halloween-themed activities at the Club Room.",
     location: "Club Room",
@@ -43,7 +43,7 @@ export const events: Event[] = [
   },
   {
     id: 5,
-    poster: "/posters/5.jpg",
+    poster: "/posters/5.webp",
     title: "Gluhwein Booth",
     shortDescription: "Warm drinks, winter atmosphere, and festive conversations to celebrate the holiday season together.",
     location: "ViennaBase19",
@@ -51,7 +51,7 @@ export const events: Event[] = [
   },
   {
     id: 6,
-    poster: "/posters/6.jpg",
+    poster: "/posters/6.webp",
     title: "Semester Closing Party",
     shortDescription: "Celebrate the end of the semester with costumes, music, and one final night together before the break.",
     location: "ViennaBase19",
@@ -59,7 +59,7 @@ export const events: Event[] = [
   },
   {
     id: 7,
-    poster: "/posters/7.jpg",
+    poster: "/posters/7.webp",
     title: "Semester Opening",
     shortDescription: "Kick off the new semester by meeting fellow residents, making friends, and enjoying a fun evening together.",
     location: "ViennaBase19",
@@ -67,7 +67,7 @@ export const events: Event[] = [
   },
   {
     id: 8,
-    poster: "/posters/8.jpg",
+    poster: "/posters/8.webp",
     title: "Flea Market",
     shortDescription: "Residents sold, swapped, and discovered hidden treasures while enjoying a relaxed afternoon together.",
     location: "ViennaBase19",
@@ -75,7 +75,7 @@ export const events: Event[] = [
   },
   {
     id: 9,
-    poster: "/posters/9.jpg",
+    poster: "/posters/9.webp",
     title: "BBQ Together",
     shortDescription: "An afternoon of grilled food, good conversations, and community in the ViennaBase19 garden.",
     location: "ViennaBase19 Garden",
@@ -83,7 +83,7 @@ export const events: Event[] = [
   },
   {
     id: 10,
-    poster: "/posters/10.jpg",
+    poster: "/posters/10.webp",
     title: "Volleyball Tournament",
     shortDescription: "A friendly outdoor volleyball tournament bringing residents together for some healthy competition.",
     location: "ViennaBase19",
@@ -91,7 +91,7 @@ export const events: Event[] = [
   },
   {
     id: 11,
-    poster: "/posters/11.jpg",
+    poster: "/posters/11.webp",
     title: "Latino Night",
     shortDescription: "An evening of Latin music, dancing, and summer vibes to celebrate the end of the semester.",
     location: "ViennaBase19",
