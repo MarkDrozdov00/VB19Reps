@@ -1,17 +1,43 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="preload">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="/favicon.png" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>ViennaBase19 - Facility Booking</title>
+		<style>
+			html {
+				background: linear-gradient(135deg, #faf5ff 0%, #fdf2f8 50%, #fff7ed 100%);
+			}
+
+			html.preload body {
+				opacity: 0;
+				visibility: hidden;
+			}
+
+			body {
+				margin: 0;
+				min-height: 100vh;
+				background: linear-gradient(135deg, #faf5ff 0%, #fdf2f8 50%, #fff7ed 100%);
+				opacity: 1;
+				transition: opacity 120ms ease-out;
+			}
+		</style>
+		<noscript>
+			<style>
+				html.preload body {
+					opacity: 1;
+					visibility: visible;
+				}
+			</style>
+		</noscript>
 		
-		<link rel="modulepreload" href="/_app/immutable/entry/start.DkXc6j4K.js">
-		<link rel="modulepreload" href="/_app/immutable/chunks/DXXn8V6U.js">
+		<link rel="modulepreload" href="/_app/immutable/entry/start.q03CBeFb.js">
+		<link rel="modulepreload" href="/_app/immutable/chunks/BXulprGu.js">
 		<link rel="modulepreload" href="/_app/immutable/chunks/BZidcu-T.js">
 		<link rel="modulepreload" href="/_app/immutable/chunks/bxAr0Eld.js">
-		<link rel="modulepreload" href="/_app/immutable/chunks/CLVTMnja.js">
-		<link rel="modulepreload" href="/_app/immutable/entry/app.DxUdDFFx.js">
+		<link rel="modulepreload" href="/_app/immutable/chunks/DwEEathj.js">
+		<link rel="modulepreload" href="/_app/immutable/entry/app.adc4hwph.js">
 		<link rel="modulepreload" href="/_app/immutable/chunks/CWj6FrbW.js">
 		<link rel="modulepreload" href="/_app/immutable/chunks/xs5rWoyO.js">
 		<link rel="modulepreload" href="/_app/immutable/chunks/C1rqC3vP.js">
@@ -21,15 +47,15 @@
 		<div style="display: contents">
 			<script>
 				{
-					__sveltekit_1qbxmhf = {
+					__sveltekit_1c3ooka = {
 						base: ""
 					};
 
 					const element = document.currentScript.parentElement;
 
 					Promise.all([
-						import("/_app/immutable/entry/start.DkXc6j4K.js"),
-						import("/_app/immutable/entry/app.DxUdDFFx.js")
+						import("/_app/immutable/entry/start.q03CBeFb.js"),
+						import("/_app/immutable/entry/app.adc4hwph.js")
 					]).then(([kit, app]) => {
 						kit.start(app, element);
 					});
@@ -38,4 +64,3 @@
 		</div>
 	</body>
 </html>
-

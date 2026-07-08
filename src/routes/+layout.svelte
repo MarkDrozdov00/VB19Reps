@@ -1,7 +1,12 @@
 <script>
+  import { onMount } from 'svelte';
   import '../app.css';
   import NavBar from '$lib/components/NavBar.svelte';
   import Footer from '$lib/components/Footer.svelte';
+
+  onMount(() => {
+    document.documentElement.classList.remove('preload');
+  });
 </script>
 
 <div class="min-h-screen flex flex-col">
@@ -13,4 +18,3 @@
   
   <Footer />
 </div>
-
