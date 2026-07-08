@@ -1,4 +1,4 @@
-let base = "/VB19Reps";
+let base = "";
 let assets = base;
 const app_dir = "_app";
 const initial = { base, assets };
