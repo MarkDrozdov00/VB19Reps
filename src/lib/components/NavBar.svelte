@@ -1,8 +1,10 @@
 <script>
+  import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { base } from '$app/paths';
 
   let mobileOpen = false;
+  let isScrolled = false;
 
   // includes base (e.g. /VB19Reps/...)
   $: currentPath = $page.url.pathname;
@@ -32,9 +34,26 @@
   function closeMobile() {
     mobileOpen = false;
   }
+
+  onMount(() => {
+    const updateScrolled = () => {
+      isScrolled = window.scrollY > 4;
+    };
+
+    updateScrolled();
+    window.addEventListener('scroll', updateScrolled, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', updateScrolled);
+    };
+  });
 </script>
 
-<nav class="bg-white shadow-sm border-b border-gray-100">
+<nav
+  class={`sticky top-0 z-[10000] border-b backdrop-blur-md transition-[background-color,box-shadow,border-color,backdrop-filter] duration-300 ease-out supports-[backdrop-filter]:bg-white/85 ${
+    isScrolled ? 'bg-white/90 border-gray-200 shadow-md' : 'bg-white/95 border-gray-100 shadow-sm'
+  }`}
+>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-16">
       <!-- Logo/Brand -->
@@ -56,6 +75,22 @@
             aria-current={isActive('/') ? 'page' : undefined}
           >
             Home
+          </a>
+
+          <a
+            href={href('/events')}
+            class={desktopLinkClass(isActive('/events'))}
+            aria-current={isActive('/events') ? 'page' : undefined}
+          >
+            Events
+          </a>
+
+          <a
+            href={href('/admin')}
+            class={desktopLinkClass(isActive('/admin'))}
+            aria-current={isActive('/admin') ? 'page' : undefined}
+          >
+            Admin
           </a>
 
           <!--
@@ -107,6 +142,24 @@
           on:click={closeMobile}
         >
           Home
+        </a>
+
+        <a
+          href={href('/events')}
+          class={mobileLinkClass(isActive('/events'))}
+          aria-current={isActive('/events') ? 'page' : undefined}
+          on:click={closeMobile}
+        >
+          Events
+        </a>
+
+        <a
+          href={href('/admin')}
+          class={mobileLinkClass(isActive('/admin'))}
+          aria-current={isActive('/admin') ? 'page' : undefined}
+          on:click={closeMobile}
+        >
+          Admin
         </a>
 
         <!--

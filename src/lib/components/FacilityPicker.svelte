@@ -26,7 +26,7 @@
 
 <svelte:window on:click={handleClickOutside} />
 
-<div class="facility-picker relative z-10" style="overflow: none;">
+<div class="facility-picker relative z-[100] overflow-visible">
   <label class="form-label">Select Facility</label>
   
   <button
@@ -50,7 +50,7 @@
   </button>
   
   {#if isOpen}
-    <div class="relative mt-1 w-full bg-white shadow-lg max-h-60 rounded-lg py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none" >
+    <div class="absolute top-full left-0 right-0 z-[9999] mt-1 w-full bg-white shadow-lg max-h-60 rounded-lg py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none" >
       {#each $facilities as facility (facility.id)}
         <button
           type="button"
@@ -71,4 +71,3 @@
     </div>
   {/if}
 </div>
-

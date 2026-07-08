@@ -7,7 +7,9 @@
     "build": "vite build",
     "postbuild": "node -e \"require('fs').mkdirSync('docs',{recursive:true}); require('fs').writeFileSync('docs/.nojekyll','')\"",
     "dev": "vite dev",
+    "mailer": "node server/base-reps-mailer.js",
     "preview": "vite preview",
+    "seed:events": "node scripts/seed-events.js",
     "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch"
   },
@@ -25,6 +27,7 @@
     "vite": "^5.4.20"
   },
   "dependencies": {
-    "@tailwindcss/typography": "^0.5.16"
+    "@tailwindcss/typography": "^0.5.16",
+    "nodemailer": "^9.0.3"
   }
 }

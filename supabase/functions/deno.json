@@ -1,8 +1,8 @@
 {
-    "imports": {
-      "hono": "https://deno.land/x/hono@v3.12.8/mod.ts"
-    },
-    "lint": { "rules": { "tags": ["recommended"] } },
-    "fmt": { "lineWidth": 100 }
-  }
-  
+  "imports": {
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2",
+    "hono": "https://deno.land/x/hono@v3.12.8/mod.ts"
+  },
+  "lint": { "rules": { "tags": ["recommended"] } },
+  "fmt": { "lineWidth": 100 }
+}

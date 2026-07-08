@@ -77,6 +77,7 @@
       ? Math.ceil((atMidnight(selectedEndDate).getTime() - atMidnight(selectedStartDate).getTime()) / (1000*60*60*24)) + 1
       : 1;
   $: totalNights = totalDays; // 1 selected day = 1 night (for Clubroom)
+  $: depositAmount = $selectedFacility?.depositEur ?? 0;
 
   // ----- availability fetch -----
   let loading = false;
@@ -430,4 +431,20 @@
       <span class="text-vb19-muted">Unavailable</span>
     </div>
   </div>
+
+  {#if depositAmount > 0}
+    <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5">
+      <div class="flex items-start gap-2.5">
+        <svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div>
+          <p class="text-sm font-medium text-amber-900">Deposit &amp; key pickup</p>
+          <p class="mt-0.5 text-xs leading-5 text-amber-800">
+            A €{depositAmount} deposit is required when picking up the key. The Terms of Use contract must be signed at key pickup.
+          </p>
+        </div>
+      </div>
+    </div>
+  {/if}
 </div>

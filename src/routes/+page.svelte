@@ -113,7 +113,7 @@
 </section>
 
 <!-- Booking Section -->
-<section id="booking-section" class="py-20 px-4">
+<section id="booking-section" class="booking-flow py-20 px-4">
   <div class="max-w-7xl mx-auto">
     <div class="text-center mb-16 animate-slide-up">
       <h2 class="text-4xl md:text-5xl font-bold gradient-text mb-6">Book Your Facility</h2>
@@ -122,10 +122,10 @@
       </p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
       <!-- Step 1 -->
-      <div class="space-y-8 animate-slide-up" style="animation-delay: 0.2s;">
-        <div class="card">
+      <div class="flex flex-col gap-8 animate-slide-up relative overflow-visible" style="animation-delay: 0.2s;">
+        <div class="card relative z-[100] overflow-visible">
           <h3 class="text-2xl font-bold gradient-text mb-6 flex items-center">
             <span class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">1</span>
             What would you like to book?
@@ -134,16 +134,16 @@
         </div>
 
         {#if selectedFacility}
-          <div class="card animate-bounce-in">
+          <div class="card animate-bounce-in relative z-0">
             <FacilityGallery facility={selectedFacility} />
           </div>
         {/if}
       </div>
 
-      <!-- Step 2 & 3 -->
-      <div class="space-y-8">
+      <!-- Step 2 -->
+      <div>
         {#if selectedFacility}
-          <div class="card animate-slide-up" style="animation-delay: 0.4s;">
+          <div class="card w-full">
             <h3 class="text-2xl font-bold gradient-text mb-6 flex items-center">
               <span class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">2</span>
               Select Your Dates
@@ -151,30 +151,56 @@
             <AvailabilityCalendar facility={selectedFacility} on:datesSelect={handleDatesSelect} />
           </div>
         {/if}
-
-        {#if showBookingForm}
-          <div class="card animate-bounce-in">
-            <h3 class="text-2xl font-bold gradient-text mb-6 flex items-center">
-              <span class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">3</span>
-              Complete Your Booking
-            </h3>
-            <BookingForm facility={selectedFacility} dates={selectedDates} on:submit={handleBookingSubmit} />
-          </div>
-        {:else if selectedFacility}
-          <div class="card text-center animate-slide-up">
-            <div class="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <h3 class="text-xl font-semibold text-gray-700 mb-2">Step 3: Complete Your Booking</h3>
-            <p class="text-gray-500">Please select your booking dates to continue</p>
-          </div>
-        {/if}
       </div>
     </div>
+
+    {#if showBookingForm}
+      <div class="mt-8 lg:mt-12 max-w-5xl mx-auto">
+        <div class="card animate-bounce-in">
+          <h3 class="text-2xl font-bold gradient-text mb-6 flex items-center">
+            <span class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">3</span>
+            Complete Your Booking
+          </h3>
+          <BookingForm facility={selectedFacility} dates={selectedDates} on:submit={handleBookingSubmit} />
+        </div>
+      </div>
+    {:else if selectedFacility}
+      <div class="mt-8 lg:mt-12 max-w-5xl mx-auto">
+        <div class="card text-center animate-slide-up">
+          <div class="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-700 mb-2">Step 3: Complete Your Booking</h3>
+          <p class="text-gray-500">Please select your booking dates to continue</p>
+        </div>
+      </div>
+    {/if}
   </div>
 </section>
+
+<style>
+  .booking-flow :global(.card:hover) {
+    transform: scale(1.005) !important;
+  }
+
+  .booking-flow :global(.animate-bounce-in) {
+    animation: bookingSoftIn 0.45s ease-out both;
+  }
+
+  @keyframes bookingSoftIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.995);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+</style>
 
 <!-- Community Guidelines -->
 <section class="py-20 px-4 bg-gradient-to-br from-purple-50 to-pink-50">

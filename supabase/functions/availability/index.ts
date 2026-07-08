@@ -7,22 +7,17 @@ const SUPABASE_URL = Deno.env.get("DB_URL")!;
 const SUPABASE_SERVICE_ROLE = Deno.env.get("DB_SERVICE_ROLE")!;
 const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE);
 
-// CORS allowlist (NO paths, NO trailing slashes)
-const ALLOWED = new Set<string>([
-  "http://localhost:5173",
-  "http://127.0.0.1:5173",
-  "https://markdrozdov00.github.io"
-]);
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+};
 
-function corsHeaders(origin: string | null) {
-  const h = new Headers({ "Vary": "Origin" });
-  if (origin && ALLOWED.has(origin)) {
-    h.set("Access-Control-Allow-Origin", origin);
-    h.set("Access-Control-Allow-Credentials", "true");
-  }
-  h.set("Access-Control-Allow-Methods", "GET,OPTIONS");
-  h.set("Access-Control-Allow-Headers", "authorization, x-client-info, apikey, content-type");
-  return h;
+function json(data: unknown, status: number) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
 }
 
 // normalize to midnight local (then use ISO yyyy-mm-dd)
@@ -38,12 +33,8 @@ function asMidnightDate(isoYYYYMMDD: string) {
 }
 
 Deno.serve(async (req) => {
-  const origin = req.headers.get("Origin");
-  const headers = corsHeaders(origin);
-
-  // CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
@@ -51,10 +42,10 @@ Deno.serve(async (req) => {
     const facilityName = url.searchParams.get("facilityName"); // 'CLUB_ROOM' | 'GAMES_ROOM' | 'BBQ_AREA'
     const from = url.searchParams.get("from");                  // YYYY-MM-DD inclusive
     const to   = url.searchParams.get("to");                    // YYYY-MM-DD exclusive
+    console.log("availability received facilityName", facilityName);
 
     if (!facilityName || !from || !to) {
-      headers.set("Content-Type", "application/json");
-      return new Response(JSON.stringify({ error: "BAD_INPUT" }), { status: 400, headers });
+      return json({ error: "BAD_INPUT" }, 400);
     }
 
     // Resolve facility id
@@ -63,10 +54,16 @@ Deno.serve(async (req) => {
       .select("id")
       .eq("name", facilityName)
       .maybeSingle();
+    console.log("availability facility query result", fac);
+    console.error("availability facility query error", facErr);
 
     if (facErr || !fac) {
-      headers.set("Content-Type", "application/json");
-      return new Response(JSON.stringify({ error: "UNKNOWN_FACILITY" }), { status: 400, headers });
+      return json({
+        error: "UNKNOWN_FACILITY",
+        requestedFacility: facilityName,
+        queryError: facErr,
+        queryResult: fac,
+      }, 400);
     }
 
     // Overlapping blackouts: start_date < to AND end_date > from
@@ -79,8 +76,7 @@ Deno.serve(async (req) => {
 
     if (be) {
       console.error("availability blackouts error", be);
-      headers.set("Content-Type", "application/json");
-      return new Response(JSON.stringify({ error: "BLACKOUTS_QUERY_FAILED" }), { status: 500, headers });
+      return json({ error: "BLACKOUTS_QUERY_FAILED" }, 500);
     }
 
     // Overlapping reservations (PENDING + CONFIRMED)
@@ -94,8 +90,7 @@ Deno.serve(async (req) => {
 
     if (re) {
       console.error("availability reservations error", re);
-      headers.set("Content-Type", "application/json");
-      return new Response(JSON.stringify({ error: "RESERVATIONS_QUERY_FAILED" }), { status: 500, headers });
+      return json({ error: "RESERVATIONS_QUERY_FAILED" }, 500);
     }
 
     const bRanges = (blackoutRows ?? []).map((r) => ({
@@ -130,14 +125,9 @@ Deno.serve(async (req) => {
       days.push({ date: iso, status });
     }
 
-    headers.set("Content-Type", "application/json");
-    return new Response(JSON.stringify({ days }), {
-      status: 200,
-      headers, // pass the Headers object directly
-    });
+    return json({ days }, 200);
   } catch (e) {
     console.error("availability server error", e);
-    headers.set("Content-Type", "application/json");
-    return new Response(JSON.stringify({ error: "SERVER" }), { status: 500, headers });
+    return json({ error: "SERVER" }, 500);
   }
 });

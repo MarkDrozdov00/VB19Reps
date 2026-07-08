@@ -1,5 +1,5 @@
 import { clsx as clsx$1 } from "clsx";
-import { B as BROWSER } from "./false.js";
+import { D as DEV } from "./false.js";
 var is_array = Array.isArray;
 var index_of = Array.prototype.indexOf;
 var array_from = Array.from;
@@ -578,7 +578,7 @@ function flush_effects() {
       var batch = Batch.ensure();
       if (flush_count++ > 1e3) {
         var updates, entry;
-        if (BROWSER) ;
+        if (DEV) ;
         infinite_loop_guard();
       }
       batch.process(queued_root_effects);
@@ -1485,7 +1485,7 @@ function update_effect(effect) {
     effect.teardown = typeof teardown === "function" ? teardown : null;
     effect.wv = write_version;
     var dep;
-    if (BROWSER && tracing_mode_flag && (effect.f & DIRTY) !== 0 && effect.deps !== null) ;
+    if (DEV && tracing_mode_flag && (effect.f & DIRTY) !== 0 && effect.deps !== null) ;
   } finally {
     is_updating_effect = was_updating_effect;
     active_effect = previous_effect;
@@ -1623,6 +1623,9 @@ function clsx(value) {
 }
 function to_class(value, hash, directives) {
   var classname = value == null ? "" : "" + value;
+  if (hash) {
+    classname = classname ? classname + " " + hash : hash;
+  }
   return classname === "" ? null : classname;
 }
 function to_style(value, styles) {
@@ -1736,7 +1739,7 @@ function render(component, options = {}) {
     on_destroy = [];
     payload.out.push(BLOCK_OPEN);
     let reset_reset_element;
-    if (BROWSER) ;
+    if (DEV) ;
     if (options.context) {
       push();
       current_component.c = options.context;
@@ -1775,7 +1778,7 @@ function stringify(value) {
   return typeof value === "string" ? value : value == null ? "" : value + "";
 }
 function attr_class(value, hash, directives) {
-  var result = to_class(value);
+  var result = to_class(value, hash);
   return result ? ` class="${escape_html(result, true)}"` : "";
 }
 function attr_style(value, directives) {
@@ -1810,14 +1813,20 @@ function slot(payload, $$props, name, slot_props, fallback_fn) {
     slot_fn(payload, slot_props);
   }
 }
+function ensure_array_like(array_like_or_iterator) {
+  if (array_like_or_iterator) {
+    return array_like_or_iterator.length !== void 0 ? array_like_or_iterator : Array.from(array_like_or_iterator);
+  }
+  return [];
+}
 export {
   setContext as A,
   pop as B,
   COMMENT_NODE as C,
   getContext as D,
   store_get as E,
-  attr as F,
-  attr_class as G,
+  attr_class as F,
+  attr as G,
   HYDRATION_ERROR as H,
   clsx as I,
   unsubscribe_stores as J,
@@ -1829,6 +1838,7 @@ export {
   head as P,
   attr_style as Q,
   safe_not_equal as R,
+  ensure_array_like as S,
   set_active_effect as a,
   active_effect as b,
   active_reaction as c,

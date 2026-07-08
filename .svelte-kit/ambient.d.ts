@@ -26,64 +26,80 @@
  * ```
  */
 declare module '$env/static/private' {
-	export const TERM_PROGRAM: string;
+	export const SUPABASE_URL: string;
+	export const SUPABASE_SERVICE_ROLE_KEY: string;
+	export const NVM_INC: string;
+	export const RUST_LOG: string;
+	export const CODEX_SANDBOX_NETWORK_DISABLED: string;
+	export const VSCODE_CRASH_REPORTER_PROCESS_TYPE: string;
 	export const NODE: string;
 	export const INIT_CWD: string;
+	export const NVM_CD_FLAGS: string;
 	export const TERM: string;
 	export const SHELL: string;
-	export const npm_config_metrics_registry: string;
 	export const TMPDIR: string;
 	export const npm_config_global_prefix: string;
-	export const TERM_PROGRAM_VERSION: string;
-	export const ZDOTDIR: string;
-	export const CURSOR_TRACE_ID: string;
-	export const ORIGINAL_XDG_CURRENT_DESKTOP: string;
 	export const MallocNanoZone: string;
 	export const COLOR: string;
+	export const NO_COLOR: string;
 	export const npm_config_noproxy: string;
 	export const npm_config_local_prefix: string;
+	export const LC_ALL: string;
+	export const NVM_DIR: string;
 	export const USER: string;
-	export const VSCODE_LOGIN_INITIALIZED: string;
 	export const COMMAND_MODE: string;
 	export const npm_config_globalconfig: string;
 	export const SSH_AUTH_SOCK: string;
-	export const VSCODE_PROFILE_INITIALIZED: string;
 	export const __CF_USER_TEXT_ENCODING: string;
 	export const npm_execpath: string;
-	export const VIRTUAL_ENV: string;
+	export const PAGER: string;
+	export const ELECTRON_RUN_AS_NODE: string;
 	export const PATH: string;
+	export const CODEX_SANDBOX: string;
 	export const npm_package_json: string;
 	export const _: string;
+	export const LaunchInstanceID: string;
 	export const npm_config_userconfig: string;
 	export const npm_config_init_module: string;
-	export const USER_ZDOTDIR: string;
 	export const __CFBundleIdentifier: string;
+	export const CODEX_THREAD_ID: string;
 	export const npm_command: string;
 	export const PWD: string;
+	export const JAVA_HOME: string;
+	export const VSCODE_HANDLES_UNCAUGHT_ERRORS: string;
 	export const npm_lifecycle_event: string;
 	export const EDITOR: string;
+	export const VSCODE_ESM_ENTRYPOINT: string;
 	export const npm_package_name: string;
 	export const LANG: string;
-	export const VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
+	export const npm_config_npm_version: string;
 	export const XPC_FLAGS: string;
+	export const CODEX_CI: string;
+	export const MACH_PORT_RENDEZVOUS_PEER_VALDATION: string;
 	export const npm_config_node_gyp: string;
 	export const npm_package_version: string;
 	export const XPC_SERVICE_NAME: string;
-	export const VSCODE_INJECTION: string;
 	export const SHLVL: string;
 	export const HOME: string;
-	export const VSCODE_GIT_ASKPASS_MAIN: string;
+	export const VSCODE_NLS_CONFIG: string;
+	export const GH_PAGER: string;
 	export const npm_config_cache: string;
 	export const LOGNAME: string;
 	export const npm_lifecycle_script: string;
-	export const VSCODE_GIT_IPC_HANDLE: string;
+	export const VSCODE_IPC_HOOK: string;
+	export const VSCODE_CODE_CACHE_PATH: string;
+	export const LC_CTYPE: string;
+	export const NVM_BIN: string;
 	export const npm_config_user_agent: string;
-	export const VSCODE_GIT_ASKPASS_NODE: string;
-	export const GIT_ASKPASS: string;
-	export const VIRTUAL_ENV_PROMPT: string;
+	export const VSCODE_PID: string;
+	export const GIT_PAGER: string;
+	export const VSCODE_CWD: string;
+	export const SECURITYSESSIONID: string;
+	export const DEBUG: string;
 	export const npm_node_execpath: string;
 	export const npm_config_prefix: string;
 	export const COLORTERM: string;
+	export const CODEX_INTERNAL_ORIGINATOR_OVERRIDE: string;
 	export const NODE_ENV: string;
 }
 
@@ -97,7 +113,8 @@ declare module '$env/static/private' {
  * ```
  */
 declare module '$env/static/public' {
-	
+	export const PUBLIC_SUPABASE_URL: string;
+	export const PUBLIC_SUPABASE_ANON_KEY: string;
 }
 
 /**
@@ -114,64 +131,80 @@ declare module '$env/static/public' {
  */
 declare module '$env/dynamic/private' {
 	export const env: {
-		TERM_PROGRAM: string;
+		SUPABASE_URL: string;
+		SUPABASE_SERVICE_ROLE_KEY: string;
+		NVM_INC: string;
+		RUST_LOG: string;
+		CODEX_SANDBOX_NETWORK_DISABLED: string;
+		VSCODE_CRASH_REPORTER_PROCESS_TYPE: string;
 		NODE: string;
 		INIT_CWD: string;
+		NVM_CD_FLAGS: string;
 		TERM: string;
 		SHELL: string;
-		npm_config_metrics_registry: string;
 		TMPDIR: string;
 		npm_config_global_prefix: string;
-		TERM_PROGRAM_VERSION: string;
-		ZDOTDIR: string;
-		CURSOR_TRACE_ID: string;
-		ORIGINAL_XDG_CURRENT_DESKTOP: string;
 		MallocNanoZone: string;
 		COLOR: string;
+		NO_COLOR: string;
 		npm_config_noproxy: string;
 		npm_config_local_prefix: string;
+		LC_ALL: string;
+		NVM_DIR: string;
 		USER: string;
-		VSCODE_LOGIN_INITIALIZED: string;
 		COMMAND_MODE: string;
 		npm_config_globalconfig: string;
 		SSH_AUTH_SOCK: string;
-		VSCODE_PROFILE_INITIALIZED: string;
 		__CF_USER_TEXT_ENCODING: string;
 		npm_execpath: string;
-		VIRTUAL_ENV: string;
+		PAGER: string;
+		ELECTRON_RUN_AS_NODE: string;
 		PATH: string;
+		CODEX_SANDBOX: string;
 		npm_package_json: string;
 		_: string;
+		LaunchInstanceID: string;
 		npm_config_userconfig: string;
 		npm_config_init_module: string;
-		USER_ZDOTDIR: string;
 		__CFBundleIdentifier: string;
+		CODEX_THREAD_ID: string;
 		npm_command: string;
 		PWD: string;
+		JAVA_HOME: string;
+		VSCODE_HANDLES_UNCAUGHT_ERRORS: string;
 		npm_lifecycle_event: string;
 		EDITOR: string;
+		VSCODE_ESM_ENTRYPOINT: string;
 		npm_package_name: string;
 		LANG: string;
-		VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
+		npm_config_npm_version: string;
 		XPC_FLAGS: string;
+		CODEX_CI: string;
+		MACH_PORT_RENDEZVOUS_PEER_VALDATION: string;
 		npm_config_node_gyp: string;
 		npm_package_version: string;
 		XPC_SERVICE_NAME: string;
-		VSCODE_INJECTION: string;
 		SHLVL: string;
 		HOME: string;
-		VSCODE_GIT_ASKPASS_MAIN: string;
+		VSCODE_NLS_CONFIG: string;
+		GH_PAGER: string;
 		npm_config_cache: string;
 		LOGNAME: string;
 		npm_lifecycle_script: string;
-		VSCODE_GIT_IPC_HANDLE: string;
+		VSCODE_IPC_HOOK: string;
+		VSCODE_CODE_CACHE_PATH: string;
+		LC_CTYPE: string;
+		NVM_BIN: string;
 		npm_config_user_agent: string;
-		VSCODE_GIT_ASKPASS_NODE: string;
-		GIT_ASKPASS: string;
-		VIRTUAL_ENV_PROMPT: string;
+		VSCODE_PID: string;
+		GIT_PAGER: string;
+		VSCODE_CWD: string;
+		SECURITYSESSIONID: string;
+		DEBUG: string;
 		npm_node_execpath: string;
 		npm_config_prefix: string;
 		COLORTERM: string;
+		CODEX_INTERNAL_ORIGINATOR_OVERRIDE: string;
 		NODE_ENV: string;
 		[key: `PUBLIC_${string}`]: undefined;
 		[key: `${string}`]: string | undefined;
@@ -190,6 +223,8 @@ declare module '$env/dynamic/private' {
  */
 declare module '$env/dynamic/public' {
 	export const env: {
+		PUBLIC_SUPABASE_URL: string;
+		PUBLIC_SUPABASE_ANON_KEY: string;
 		[key: `PUBLIC_${string}`]: string | undefined;
 	}
 }

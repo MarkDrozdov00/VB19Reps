@@ -55,7 +55,13 @@ export const facilitiesData: Facility[] = [
     depositEur: 200,
     termsNote:
       'A €200 deposit is required when picking up the key. Terms of Use contract must be signed at key pickup.',
-    images: [{ url: withBase('/games-room.jpg'), alt: 'Games Room - Gaming Setup' }]
+    images: [
+      { url: withBase('/gamesroom/1.jpeg'), alt: 'Games Room - Gaming Setup 1' },
+      { url: withBase('/gamesroom/2.jpeg'), alt: 'Games Room - Gaming Setup 2' },
+      { url: withBase('/gamesroom/3.jpeg'), alt: 'Games Room - Gaming Setup 3' },
+      { url: withBase('/gamesroom/4.jpeg'), alt: 'Games Room - Gaming Setup 4' },
+      { url: withBase('/gamesroom/5.jpeg'), alt: 'Games Room - Gaming Setup 5' }
+    ]
   },
   {
     id: 3,

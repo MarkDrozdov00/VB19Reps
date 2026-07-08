@@ -5,3 +5,4 @@ src/routes/about/
 src/routes/announcements/
 /node_modules/
 .DS_Store
+.env*
