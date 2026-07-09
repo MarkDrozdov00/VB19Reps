@@ -17,7 +17,7 @@
   let databaseEvents: EventItem[] = [];
   let eventsLoading = true;
   let eventsError = '';
-  let flippedCards = new Set<string>();
+  let flippedEventIds = new Set<string>();
 
   const todayIso = toISO(new Date());
   const archiveEvents: DisplayEvent[] = [...staticEvents].sort((a, b) => b.id - a.id).map((event) => ({
@@ -67,6 +67,10 @@
     return path.replace(/\.(jpe?g|png|webp)$/i, '');
   }
 
+  function eventKey(event: DisplayEvent) {
+    return event.id || event.poster;
+  }
+
   function toISO(date: Date) {
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -79,9 +83,9 @@
   }
 
   function toggleFlip(id: string) {
-    flippedCards = new Set(flippedCards);
-    if (flippedCards.has(id)) flippedCards.delete(id);
-    else flippedCards.add(id);
+    flippedEventIds = new Set(flippedEventIds);
+    if (flippedEventIds.has(id)) flippedEventIds.delete(id);
+    else flippedEventIds.add(id);
   }
 
   function handleCardKeydown(event: KeyboardEvent, id: string) {
@@ -172,14 +176,13 @@
         </div>
       {:else}
         <div class="events-grid">
-          {#each upcomingEvents as event (event.id)}
+          {#each upcomingEvents as event (eventKey(event))}
             <button
               type="button"
-              class="event-card {flippedCards.has(event.id) ? 'is-flipped' : ''}"
+              class="event-card {flippedEventIds.has(eventKey(event)) ? 'is-flipped' : ''}"
               aria-label={`Flip details for ${event.title}`}
-              on:click={() => toggleFlip(event.id)}
-              on:keydown={(keyboardEvent) => handleCardKeydown(keyboardEvent, event.id)}
-              use:revealOnScroll
+              on:click={() => toggleFlip(eventKey(event))}
+              on:keydown={(keyboardEvent) => handleCardKeydown(keyboardEvent, eventKey(event))}
             >
               <span class="event-card-inner">
                 <span class="event-card-face event-card-front">
@@ -209,14 +212,13 @@
       </div>
 
       <div class="events-grid">
-        {#each pastEvents as event (event.id)}
+        {#each pastEvents as event (eventKey(event))}
           <button
             type="button"
-            class="event-card {flippedCards.has(event.id) ? 'is-flipped' : ''}"
+            class="event-card {flippedEventIds.has(eventKey(event)) ? 'is-flipped' : ''}"
             aria-label={`Flip details for ${event.title}`}
-            on:click={() => toggleFlip(event.id)}
-            on:keydown={(keyboardEvent) => handleCardKeydown(keyboardEvent, event.id)}
-            use:revealOnScroll
+            on:click={() => toggleFlip(eventKey(event))}
+            on:keydown={(keyboardEvent) => handleCardKeydown(keyboardEvent, eventKey(event))}
           >
             <span class="event-card-inner">
               <span class="event-card-face event-card-front">
@@ -260,30 +262,21 @@
   }
 
   .event-card {
+    aspect-ratio: 3 / 4;
     appearance: none;
     border: 0;
     background: transparent;
     cursor: pointer;
-    min-height: 430px;
     padding: 0;
     perspective: 1200px;
     text-align: left;
-    opacity: 0;
-    transform: translateY(18px);
-  }
-
-  :global(.event-card.is-visible) {
     opacity: 1;
-    transform: translateY(0);
-    transition:
-      opacity 500ms ease,
-      transform 500ms ease;
+    transform: none;
   }
 
   .event-card-inner {
     display: block;
     height: 100%;
-    min-height: 430px;
     position: relative;
     transform-style: preserve-3d;
     transition:
@@ -311,6 +304,7 @@
   .event-card-face {
     align-items: center;
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     background: rgb(255 255 255 / 0.8);
     border: 1px solid rgb(255 255 255 / 0.45);
     border-radius: 0.75rem;
@@ -340,7 +334,6 @@
 
   @media (prefers-reduced-motion: reduce) {
     .event-card,
-    :global(.event-card.is-visible),
     .event-card-inner {
       opacity: 1;
       transform: none;

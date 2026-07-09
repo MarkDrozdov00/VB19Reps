@@ -94,7 +94,7 @@ function _page($$payload, $$props) {
   push();
   let databaseDisplayEvents, databasePosterKeys, fallbackArchiveEvents, pastEvents;
   let databaseEvents = [];
-  let flippedCards = /* @__PURE__ */ new Set();
+  let flippedEventIds = /* @__PURE__ */ new Set();
   const todayIso = toISO(/* @__PURE__ */ new Date());
   const archiveEvents = [...events].sort((a, b) => b.id - a.id).map((event) => ({
     id: `archive-${event.id}`,
@@ -113,6 +113,9 @@ function _page($$payload, $$props) {
   }
   function posterKey(path) {
     return path.replace(/\.(jpe?g|png|webp)$/i, "");
+  }
+  function eventKey(event) {
+    return event.id || event.poster;
   }
   function toISO(date) {
     const y = date.getFullYear();
@@ -161,7 +164,7 @@ function _page($$payload, $$props) {
   $$payload.out.push(`<!--]--></section> <section><div class="mb-6"><h2 class="text-3xl font-bold text-vb19-text">Past Events</h2> <p class="text-sm text-vb19-muted mt-1">Past events and poster archive, newest first.</p></div> <div class="events-grid svelte-13hsgdq"><!--[-->`);
   for (let $$index_1 = 0, $$length = each_array_1.length; $$index_1 < $$length; $$index_1++) {
     let event = each_array_1[$$index_1];
-    $$payload.out.push(`<button type="button"${attr_class(`event-card ${stringify(flippedCards.has(event.id) ? "is-flipped" : "")}`, "svelte-13hsgdq")}${attr("aria-label", `Flip details for ${event.title}`)}><span class="event-card-inner svelte-13hsgdq"><span class="event-card-face event-card-front svelte-13hsgdq"><img${attr("src", asset(event.poster))}${attr("alt", `${event.title} poster`)} loading="lazy" class="svelte-13hsgdq"/></span> <span class="event-card-face event-card-back svelte-13hsgdq"><span class="text-xl font-bold text-vb19-text mb-2">${escape_html(event.title)}</span> `);
+    $$payload.out.push(`<button type="button"${attr_class(`event-card ${stringify(flippedEventIds.has(eventKey(event)) ? "is-flipped" : "")}`, "svelte-13hsgdq")}${attr("aria-label", `Flip details for ${event.title}`)}><span class="event-card-inner svelte-13hsgdq"><span class="event-card-face event-card-front svelte-13hsgdq"><img${attr("src", asset(event.poster))}${attr("alt", `${event.title} poster`)} loading="lazy" class="svelte-13hsgdq"/></span> <span class="event-card-face event-card-back svelte-13hsgdq"><span class="text-xl font-bold text-vb19-text mb-2">${escape_html(event.title)}</span> `);
     if (event.date) {
       $$payload.out.push("<!--[-->");
       $$payload.out.push(`<span class="text-sm font-semibold text-vb19-primary mb-3">${escape_html(event.date)}</span>`);
