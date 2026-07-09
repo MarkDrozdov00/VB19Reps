@@ -9,29 +9,18 @@
   // Build hrefs that respect the base path
   const href = (path = '/') => `${base}${path === '/' ? '/' : path}`;
 
-  function normalizePath(path = '/') {
-    let normalized = path || '/';
+  function currentRoutePath(pathname = '/') {
+    const withoutBase = base && pathname.startsWith(base)
+      ? pathname.slice(base.length) || '/'
+      : pathname;
 
-    if (base && normalized.startsWith(base)) {
-      normalized = normalized.slice(base.length) || '/';
-    }
-
-    return normalized.replace(/\/+$/, '') || '/';
+    return withoutBase.replace(/\/+$/, '') || '/';
   }
 
-  // Current route without base/trailing slash noise.
-  $: currentPath = normalizePath($page.url.pathname);
-
-  // Active helpers
-  const isActive = (path = '/') => {
-    const target = normalizePath(path);
-
-    if (target === '/') {
-      return currentPath === '/';
-    }
-
-    return currentPath === target || currentPath.startsWith(`${target}/`);
-  };
+  $: routePath = currentRoutePath($page.url.pathname);
+  $: homeActive = routePath === '/';
+  $: eventsActive = routePath.startsWith('/events');
+  $: adminActive = routePath.startsWith('/admin');
 
   const desktopLinkClass = (active) =>
     `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
@@ -86,44 +75,27 @@
         <div class="ml-10 flex items-baseline space-x-8">
           <a
             href={href('/')}
-            class={desktopLinkClass(isActive('/'))}
-            aria-current={isActive('/') ? 'page' : undefined}
+            class={desktopLinkClass(homeActive)}
+            aria-current={homeActive ? 'page' : undefined}
           >
             Home
           </a>
 
           <a
             href={href('/events')}
-            class={desktopLinkClass(isActive('/events'))}
-            aria-current={isActive('/events') ? 'page' : undefined}
+            class={desktopLinkClass(eventsActive)}
+            aria-current={eventsActive ? 'page' : undefined}
           >
             Events
           </a>
 
           <a
             href={href('/admin')}
-            class={desktopLinkClass(isActive('/admin'))}
-            aria-current={isActive('/admin') ? 'page' : undefined}
+            class={desktopLinkClass(adminActive)}
+            aria-current={adminActive ? 'page' : undefined}
           >
             Admin
           </a>
-
-          <!--
-          <a
-            href={href('/announcements')}
-            class={desktopLinkClass(isActive('/announcements'))}
-            aria-current={isActive('/announcements') ? 'page' : undefined}
-          >
-            Announcements
-          </a>
-          <a
-            href={href('/about')}
-            class={desktopLinkClass(isActive('/about'))}
-            aria-current={isActive('/about') ? 'page' : undefined}
-          >
-            About Us
-          </a>
-          -->
         </div>
       </div>
 
@@ -152,8 +124,8 @@
       <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50">
         <a
           href={href('/')}
-          class={mobileLinkClass(isActive('/'))}
-          aria-current={isActive('/') ? 'page' : undefined}
+          class={mobileLinkClass(homeActive)}
+          aria-current={homeActive ? 'page' : undefined}
           on:click={closeMobile}
         >
           Home
@@ -161,8 +133,8 @@
 
         <a
           href={href('/events')}
-          class={mobileLinkClass(isActive('/events'))}
-          aria-current={isActive('/events') ? 'page' : undefined}
+          class={mobileLinkClass(eventsActive)}
+          aria-current={eventsActive ? 'page' : undefined}
           on:click={closeMobile}
         >
           Events
@@ -170,31 +142,12 @@
 
         <a
           href={href('/admin')}
-          class={mobileLinkClass(isActive('/admin'))}
-          aria-current={isActive('/admin') ? 'page' : undefined}
+          class={mobileLinkClass(adminActive)}
+          aria-current={adminActive ? 'page' : undefined}
           on:click={closeMobile}
         >
           Admin
         </a>
-
-        <!--
-        <a
-          href={href('/announcements')}
-          class={mobileLinkClass(isActive('/announcements'))}
-          aria-current={isActive('/announcements') ? 'page' : undefined}
-          on:click={closeMobile}
-        >
-          Announcements
-        </a>
-        <a
-          href={href('/about')}
-          class={mobileLinkClass(isActive('/about'))}
-          aria-current={isActive('/about') ? 'page' : undefined}
-          on:click={closeMobile}
-        >
-          About Us
-        </a>
-        -->
       </div>
     </div>
   {/if}
