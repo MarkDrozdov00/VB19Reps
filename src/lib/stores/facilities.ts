@@ -42,7 +42,11 @@ export const facilitiesData: Facility[] = [
     depositEur: 200,
     termsNote:
       'A €200 deposit is required when picking up the key. Terms of Use contract must be signed at key pickup.',
-    images: [{ url: withBase('/club-room.webp'), alt: 'Club Room - Main Area' }]
+    images: [
+      { url: withBase('/clubroom/clubroom-1.webp'), alt: 'Club Room - Main Area 1' },
+      { url: withBase('/clubroom/clubroom-2.webp'), alt: 'Club Room - Main Area 2' },
+      { url: withBase('/clubroom/clubroom-3.webp'), alt: 'Club Room - Main Area 3' }
+    ]
   },
   {
     id: 2,
