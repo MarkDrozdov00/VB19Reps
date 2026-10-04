@@ -20,9 +20,11 @@
     return `${y}-${m}-${day}`;
   };
 
-  // booking window: tomorrow .. +2 months (inclusive)
+  // Booking window: BBQ can be booked today; other facilities start tomorrow.
   const today = atMidnight(new Date());
-  const minSelectableDate = addDays(today, 1);
+  $: minSelectableDate = $selectedFacility?.name === 'BBQ_AREA'
+    ? today
+    : addDays(today, 1);
   const maxSelectableDate = new Date(atMidnight(addMonths(today, 2)).getTime() + (24*60*60*1000 - 1));
 
   let currentDate = new Date();
@@ -39,7 +41,12 @@
   $: monthName = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
   // base days for the grid
-  $: calendarDays = generateCalendarDays(currentYear, currentMonth, $availability?.days ?? []);
+  $: calendarDays = generateCalendarDays(
+    currentYear,
+    currentMonth,
+    $availability?.days ?? [],
+    minSelectableDate
+  );
 
   // DAYS WITH SELECTION FLAGS (reacts to startTs/endTs)
   $: viewDays = calendarDays.map(d => {
@@ -148,7 +155,12 @@
   $: if ($selectedFacility) { /* facility changed */ refreshAvailability(); }
   $: if (currentMonth != null && currentYear != null) { /* month changed */ refreshAvailability(); }
 
-  function generateCalendarDays(year: number, month: number, daysFromStore: Array<{date:string;status:string}> = []) {
+  function generateCalendarDays(
+    year: number,
+    month: number,
+    daysFromStore: Array<{date:string;status:string}> = [],
+    minimumDate: Date
+  ) {
     const startDate = firstGridDay(year, month);
     const days: any[] = [];
     for (let i = 0; i < 42; i++) {
@@ -158,7 +170,7 @@
       const dayStatus = getDayStatus(dateString, daysFromStore);
 
       const isOutsideWindow =
-        dateAtMidnight < minSelectableDate || dateAtMidnight > maxSelectableDate;
+        dateAtMidnight < minimumDate || dateAtMidnight > maxSelectableDate;
 
       days.push({
         date: dateAtMidnight,

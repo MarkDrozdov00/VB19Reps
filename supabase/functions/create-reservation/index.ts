@@ -66,6 +66,23 @@ function exclusiveEnd(inclusiveEnd: string) {
   return `${y}-${m}-${day}`;
 }
 
+function isValidISODate(value: unknown): value is string {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+function todayInVienna() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Vienna",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const value = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${value.year}-${value.month}-${value.day}`;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -92,8 +109,19 @@ Deno.serve(async (req) => {
     }
 
     // 2) range and policy checks
-    const start = new Date(startDate + "T00:00:00");
-    const endEx = new Date((endDate ?? exclusiveEnd(startDate)) + "T00:00:00");
+    if (!isValidISODate(startDate) || (endDate != null && !isValidISODate(endDate))) {
+      return json({ error: "BAD_DATES" }, 400);
+    }
+
+    const minimumStartDate = fac.name === "BBQ_AREA"
+      ? todayInVienna()
+      : exclusiveEnd(todayInVienna());
+    if (startDate < minimumStartDate) {
+      return json({ error: "BAD_DATES", detail: "MINIMUM_NOTICE" }, 400);
+    }
+
+    const start = new Date(startDate + "T00:00:00Z");
+    const endEx = new Date((endDate ?? exclusiveEnd(startDate)) + "T00:00:00Z");
     const diffDays = Math.ceil((+endEx - +start) / 86400000);
     if (diffDays < 1 || diffDays > (fac.max_days ?? 1)) {
       return json({ error: "TOO_LONG" }, 400);
